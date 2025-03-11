@@ -63,7 +63,7 @@ def register():
             cursor.execute(consulta,datos)
             usuario = cursor.fetchone()
             if usuario:
-                return render_template("user/home.html",mensaje="El usuario ya existe")
+                return render_template("user/register_user.html",mensaje="El usuario ya existe")
             else:
                 # Hash the password
                 hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())

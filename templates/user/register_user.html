@@ -17,6 +17,9 @@
         <button type="submit">Registrarse</button>
     </form>
     <a href="/login_user">Login</a>
-    
+    <!-- recuperar el mensaje de error en caso de que el usuario ya exista -->
+    {% if mensaje %}
+        <p>{{ mensaje }}</p>
+    {% endif %}
 </body>
 </html>
