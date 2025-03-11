@@ -11,3 +11,13 @@ selecciona el numero de comensales
 cliente->nombre usuario, contraseña, telefono
 restaurante->nombre usuario, contraseña, telefono, nombre restaurante, capacidad, web, direccion, descripcion
 reserva->id_reserva, id_cliente,id_restaurante, comensales, fecha, hora, estado(pendiente, confirmada, cancelada)
+
+# Hashear una contraseña
+def hash_password(password):
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
+    return hashed
+
+# Verificar una contraseña
+def check_password(password, hashed_password):
+    return bcrypt.checkpw(password.encode('utf-8'), hashed_password)
