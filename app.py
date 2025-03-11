@@ -8,7 +8,11 @@ app = Flask(__name__)
 def home():
     return render_template('home.html')
 
-@app.route('/login_user',methods=['POST'])
+@app.route('/login_user')
+def login_page():
+    return render_template('user/login_user.html')
+
+@app.route('/user',methods=['POST'])
 def login():
     #obtener los datos del formulario
     username = request.form['username'] 
@@ -39,11 +43,16 @@ def login():
         conexion.close()
         print("Conexión cerrada") 
         
-@app.route('/register_user',methods=['POST'])
+@app.route('/register_user')
+def register_page():
+    return render_template('user/register_user.html')
+        
+@app.route('/registered_user',methods=['POST'])
 def register():
     #obtener los datos del formulario
     username = request.form['username'] 
     password = request.form['password']
+    phone = request.form['phone']
     #creamos la conexion
     conexion = db.get_connection()
     try:
@@ -59,8 +68,8 @@ def register():
                 # Hash the password
                 hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
                 #crear la consulta
-                consulta = "INSERT INTO client (username,password) VALUES (%s,%s)"
-                datos = (username,hashed)
+                consulta = "INSERT INTO client (username,password,phone) VALUES (%s,%s,%s)"
+                datos = (username,hashed,phone)
                 cursor.execute(consulta,datos)
                 conexion.commit()
                 return render_template("home.html",mensaje="Usuario registrado correctamente")
