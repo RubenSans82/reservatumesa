@@ -1,0 +1,8 @@
+las mesas tienen 4 plazas
+hay 4 franjas horarias
+cada restaurante registra el nº de mesas que tiene
+el restaurante puede cambiar el estado de la reserva
+
+el cliente puede cancelar reserva
+selecciona el numero de comensales
+
