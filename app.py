@@ -1,8 +1,10 @@
 from flask import Flask,render_template,request,redirect,url_for,session
 import db
 import bcrypt  # Add this import for password hashing
+from config import Config  # Import Config class
 
 app = Flask(__name__)
+app.secret_key = Config.SECRET_KEY  # Set the secret key from Config
 
 @app.route('/')
 def home():
@@ -12,7 +14,7 @@ def home():
 def login_page():
     return render_template('user/login_user.html')
 
-@app.route('/user',methods=['POST'])
+@app.route('/logged_user',methods=['POST'])
 def login():
     #obtener los datos del formulario
     username = request.form['username'] 
@@ -23,7 +25,7 @@ def login():
         with conexion.cursor() as cursor:
             #creamos la consulta - solo buscamos por username
             consulta = "SELECT * FROM client WHERE username = %s"
-            datos = (username,)
+            datos = (username)
             cursor.execute(consulta,datos)
             usuario = cursor.fetchone()
             if usuario:
@@ -32,7 +34,7 @@ def login():
                 if bcrypt.checkpw(password.encode('utf-8'), stored_password):
                     #guardar datos en session
                     session['username'] = username
-                    return redirect(url_for('user'))
+                    return redirect(url_for('userhome'))
                 else:
                     return render_template("home.html",mensaje="Usuario o contraseña incorrecta")
             else:
@@ -83,6 +85,29 @@ def register():
 @app.route('/user')
 def user():
     return render_template('user/home.html')
+
+@app.route('/userhome')
+def userhome():
+    if 'username' in session:
+        # coger la lista de restaurantes y sus datos
+        conexion = db.get_connection()
+        try:
+            with conexion.cursor() as cursor:
+                consulta = "SELECT * FROM restaurant"
+                cursor.execute(consulta)
+                restaurantes = cursor.fetchall()
+                return render_template('user/home.html',restaurantes=restaurantes)
+        except Exception as e:
+            print("Ocurrió un error al conectar a la bbdd: ", e)
+        finally:
+            conexion.close()
+            print("Conexión cerrada")
+    else:
+        return redirect(url_for('home'))        
+        
+        
+        
+        
 
 if __name__ == '__main__':
     app.run(debug=True,port=80)
