@@ -6,3 +6,8 @@ el restaurante puede cambiar el estado de la reserva
 el cliente puede cancelar reserva
 selecciona el numero de comensales
 
+
+
+cliente->nombre usuario, contraseña, telefono
+restaurante->nombre usuario, contraseña, telefono, nombre restaurante, capacidad, web, direccion, descripcion
+reserva->id_reserva, id_cliente,id_restaurante, comensales, fecha, hora, estado(pendiente, confirmada, cancelada)
