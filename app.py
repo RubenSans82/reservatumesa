@@ -3,6 +3,7 @@ import db
 import bcrypt  # Add this import for password hashing
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key_here'  # Add this line to enable sessions
 
 @app.route('/')
 def home():
@@ -36,6 +37,7 @@ def login():
                 if bcrypt.checkpw(password.encode('utf-8'), stored_password):
                     #guardar datos en session
                     session['username'] = username
+                    session['user_type'] = 'client'
                     return redirect(url_for('user'))
                 else:
                     return render_template("home.html",mensaje="Usuario o contraseña incorrecta")
@@ -43,6 +45,7 @@ def login():
                 return render_template("home.html",mensaje="Usuario o contraseña incorrecta")
     except Exception as e:
         print("Ocurrió un error al conectar a la bbdd: ", e)
+        return render_template("home.html",mensaje="Error de conexión a la base de datos")
     finally:    
         conexion.close()
         print("Conexión cerrada") 
@@ -67,13 +70,15 @@ def loginRest():
                 if bcrypt.checkpw(password.encode('utf-8'), stored_password):
                     #guardar datos en session
                     session['username'] = username
-                    return redirect(url_for('user'))
+                    session['user_type'] = 'restaurant'
+                    return redirect(url_for('restaurant'))
                 else:
                     return render_template("home.html",mensaje="Usuario o contraseña incorrecta")
             else:
                 return render_template("home.html",mensaje="Usuario o contraseña incorrecta")
     except Exception as e:
         print("Ocurrió un error al conectar a la bbdd: ", e)
+        return render_template("home.html",mensaje="Error de conexión a la base de datos")
     finally:    
         conexion.close()
         print("Conexión cerrada") 
