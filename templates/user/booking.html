@@ -10,17 +10,19 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js" defer></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" defer></script>
     <script id="bookings-data" type="application/json">{{ bookings | tojson }}</script>
+    <script id="restaurant" type="application/json">{{ restaurant | tojson }}</script>
     <script src="{{ url_for('static', filename='js/booking.js') }}" defer></script>
 </head>
 
 <body>
     <div class="container">
         <h1 class="mt-5">Reserva</h1>
-        <form action="" method="post" class="mt-3">
+        <form action="/booking" method="post" class="mt-3">
             <div class="form-group">
                 <label for="restaurant">Restaurante</label>
-                <p id="restaurant">{{ restaurant }}</p>
-                <input type="hidden" name="restaurant" value="{{ restaurant }}">
+                <p id="restaurant">{{ restaurant.restaurant_name }} </p>
+                <input type="hidden" name="restaurant" value="{{ restaurant.restaurant_id }}">
+                <input type="hidden" name="user" value="1">
             </div>
             <div class="form-group">
                 <label for="people">Personas</label>

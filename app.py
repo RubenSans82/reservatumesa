@@ -1,6 +1,8 @@
 from flask import Flask,render_template,request,redirect,url_for,session
 import db
 import bcrypt  # Add this import for password hashing
+import json
+from datetime import timedelta
 
 app = Flask(__name__)
 
@@ -59,7 +61,7 @@ def register():
         with conexion.cursor() as cursor:
             # Verificar si el usuario ya existe
             consulta = "SELECT * FROM client WHERE username = %s"
-            datos = (username)
+            datos = (username,)
             cursor.execute(consulta,datos)
             usuario = cursor.fetchone()
             if usuario:
@@ -92,8 +94,42 @@ def booking(restaurant_id):
         consulta = "SELECT * FROM reservation WHERE restaurant_id = %s"
         cursor.execute(consulta,(restaurant_id))
         bookings = cursor.fetchall()
-    return render_template('user/booking.html',bookings = bookings)
+        consulta = "SELECT * FROM restaurant WHERE restaurant_id = %s"
+        cursor.execute(consulta,(restaurant_id))
+        restaurant = cursor.fetchone()
+    
+    # Convertir timedelta a string
+    for booking in bookings:
+        if isinstance(booking['time'], timedelta):
+            booking['time'] = str(booking['time'])
+    
+    connnection.close()
+    return render_template('user/booking.html',bookings = bookings,restaurant = restaurant)
 
+@app.route('/booking',methods=['POST'])
+def add_booking():
+    #obtener los datos del formulario
+    restaurant_id = request.form['restaurant']
+    client_id = request.form['user']
+    date = request.form['date'] 
+    time = request.form['time']
+    diners = request.form['people']
+    #creamos
+    #TODO: Comprobar que el hueco de reserva sigue libre
+    conexion = db.get_connection()
+    try:
+        with conexion.cursor() as cursor:
+            #crear la consulta
+            consulta = "INSERT INTO reservation (restaurant_id,client_id,date,time,diners) VALUES (%s,%s,%s,%s,%s)"
+            datos = (restaurant_id,client_id,date,time,diners)
+            cursor.execute(consulta,datos)
+            conexion.commit()
+            return redirect(url_for(''))
+    except Exception as e:
+        print("Ocurrió un error al conectar a la bbdd: ", e)
+    finally:
+        conexion.close()
+        print("Conexión cerrada")
 
 if __name__ == '__main__':
     app.run(debug=True,port=80)
