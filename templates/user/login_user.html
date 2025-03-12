@@ -9,15 +9,26 @@
 
 </head>
 <body>
-    <h1>Formulario de login cliente</h1>
-    <form action="/logged_user" method="POST">
-        <label for="username">Username</label>
-        <input type="username" name="username" id="username" required>
-        <label for="password">Password</label>
-        <input type="password" name="password" id="password" required>
-        <button type="submit">Login</button>
-    </form>
-    <a href="/register_user">Registrarse</a>
+    <div class="container page-transition">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <h1 class="text-center mb-4">Formulario de login cliente</h1>
+                
+                <form action="/logged_user" method="POST">
+                    <label for="username">Username</label>
+                    <input type="username" name="username" id="username" required>
+                    <label for="password">Password</label>
+                    <input type="password" name="password" id="password" required>
+                    <button type="submit" class="w-100">Login</button>
+                </form>
+                
+                <div class="text-center mt-4 register-section">
+                    <p class="text-white mb-3">¿No tienes cuenta todavía? Crea una cuenta nueva para poder reservar tu mesa:</p>
+                    <a href="/register_user" class="btn button-pulse">Registrarse</a>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
