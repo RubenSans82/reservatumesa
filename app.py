@@ -117,7 +117,7 @@ def register():
                 data = (username,hashed,phone)
                 cursor.execute(query,data)
                 connection.commit()
-                return render_template("home.html",message="usurario registrado correctamente")
+                return render_template("user/login_user.html",message="usurario registrado correctamente")
     except Exception as e:
         print("Ocurrió un error al conectar a la bbdd: ", e)
     finally:
@@ -218,6 +218,11 @@ def booking():
         
         
     
+
+@app.route('/logout')
+def logout():
+    session.pop('username', None)
+    return redirect(url_for('home'))
 
 if __name__ == '__main__':
     app.run(debug=True,port=80)

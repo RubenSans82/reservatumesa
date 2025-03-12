@@ -5,23 +5,92 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ restaurant.restaurant_name }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Fredoka+One&family=Righteous&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-
 </head>
 <body>
-    
-    <h1>{{ restaurant.restaurant_name }}</h1>
+    <!-- Logo in top left corner -->
+    <div class="logo-container">
+        <div class="logo-circle" style="transform: translateX(0) scale(1); opacity: 0.9; animation: none;"></div>
+        <div class="logo-text" style="transform: translateX(0); opacity: 1; animation: logo-bounce 5s ease-in-out infinite;">
+            <span>BOOK</span>
+            <span>EAT</span>
+        </div>
+    </div>
 
-    <ul>
-        <li>{{ restaurant.description }}</li>
-        <li>{{ restaurant.address }}</li>
-        <li>{{ restaurant.phone }}</li>
-        <li>{{ restaurant.website }}</li>
-    </ul>
-    <button>
-        <a href="/booking/{{ restaurant.restaurant_id }}">Reservar</a>
-    </button>
+    <div class="container page-transition">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <h1 class="text-center mb-4">{{ restaurant.restaurant_name }}</h1>
+                
+                <div class="restaurant-card" style="background-color: #FFEB3B; padding: 30px; border-radius: 10px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); margin: 0 auto; border: 3px solid var(--accent-color); position: relative; transform: rotate(-1deg); transition: all 0.4s ease;">
+                    <!-- Dotted border element -->
+                    <div style="position: absolute; top: -10px; left: -10px; right: -10px; bottom: -10px; border: 2px dashed var(--primary-color); border-radius: 15px; pointer-events: none; z-index: -1;"></div>
+                    
+                    <div class="restaurant-details p-4">
+                        <ul class="list-unstyled" style="color: #000000;">
+                            <li class="mb-3 food-icon restaurant"><strong>Descripción:</strong> {{ restaurant.description }}</li>
+                            <li class="mb-3 food-icon address"><strong>Dirección:</strong> {{ restaurant.address }}</li>
+                            <li class="mb-3 food-icon phone"><strong>Teléfono:</strong> {{ restaurant.phone }}</li>
+                            <li class="mb-3 food-icon website"><strong>Website:</strong> {{ restaurant.website }}</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <a href="/booking/{{ restaurant.restaurant_id }}" class="btn button-pulse">Reservar Mesa</a>
+                </div>
+            </div>
+        </div>
+    </div>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    
+    <style>
+        /* Fun hover animations for restaurant card */
+        @keyframes wobble {
+            0%, 100% { transform: rotate(-1deg); }
+            25% { transform: rotate(3deg) scale(1.03); }
+            50% { transform: rotate(-2deg) scale(1.05); }
+            75% { transform: rotate(1deg) scale(1.03); }
+        }
+        
+        @keyframes glowing {
+            0%, 100% { box-shadow: 0 8px 20px rgba(255, 46, 99, 0.6); }
+            50% { box-shadow: 0 8px 25px rgba(255, 190, 11, 0.8); }
+        }
+        
+        .restaurant-card {
+            transition: all 0.3s ease;
+        }
+        
+        .restaurant-card:hover {
+            animation: wobble 0.8s ease-in-out;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+            border-color: var(--primary-color);
+        }
+        
+        .restaurant-card:hover::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            border-radius: 13px;
+            background: transparent;
+            border: 2px solid var(--primary-color);
+            animation: glowing 1.5s infinite;
+            z-index: -1;
+        }
+        
+        .restaurant-card:hover .restaurant-details {
+            transform: scale(1.02);
+            transition: transform 0.3s ease;
+        }
+    </style>
 </body>
 </html>
