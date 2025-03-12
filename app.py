@@ -80,9 +80,20 @@ def register():
         print("Conexión cerrada")
         
         
+
 @app.route('/user')
 def user():
     return render_template('user/home.html')
+
+@app.route('/booking/<int:restaurant_id>')
+def booking(restaurant_id):
+    connnection = db.get_connection()
+    with connnection.cursor() as cursor:
+        consulta = "SELECT * FROM reservation WHERE restaurant_id = %s"
+        cursor.execute(consulta,(restaurant_id))
+        bookings = cursor.fetchall()
+    return render_template('user/booking.html',bookings = bookings)
+
 
 if __name__ == '__main__':
     app.run(debug=True,port=80)
