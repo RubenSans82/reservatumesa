@@ -211,16 +211,6 @@ def restaurant_details(restaurant_id):
         return redirect(url_for('home'))
         
         
-@app.route('/booking')
-def booking():
-    if 'username' in session:
-        return render_template('user/booking.html')
-    else:
-        return redirect(url_for('home'))
-        
-        
-    
-
 @app.route('/booking/<int:restaurant_id>')
 def booking(restaurant_id):
     connnection = db.get_connection()
