@@ -107,7 +107,7 @@ def userhome():
         return redirect(url_for('home'))    
     
 @app.route('/restaurant/<int:restaurant_id>')
-def restaurant(restaurant_id):
+def restaurant_details(restaurant_id):
     if 'username' in session:
         connection = db.get_connection()
         try:
@@ -123,6 +123,12 @@ def restaurant(restaurant_id):
             connection.close()
             print("Conexión cerrada")    
         
+@app.route('/booking')
+def booking():
+    if 'username' in session:
+        return render_template('user/booking.html')
+    else:
+        return redirect(url_for('home'))
         
         
     
