@@ -95,6 +95,23 @@ button a:hover {
     color: white;
 }
 
+/* Button icon styling - yellow by default, pink on hover */
+.btn i.bi-arrow-right-circle-fill,
+.btn i.bi-building-fill-add {
+    color: var(--accent-color);
+    transition: all 0.3s ease;
+}
+
+.btn:hover i.bi-arrow-right-circle-fill,
+.btn:hover i.bi-building-fill-add {
+    color: var(--primary-color);
+}
+
+/* Make sure button text stays white */
+.btn {
+    color: white;
+}
+
 /* Restaurant cards */
 .restaurant-card {
     background-color: white;
@@ -325,14 +342,11 @@ form input:focus {
     }
 }
 
+/* Fix Button Pulse animation - only activate on hover */
 .button-pulse {
     transition: all 0.4s ease;
     position: relative;
     z-index: 1;
-}
-
-.button-pulse:hover {
-    animation: enhanced-pulse 1.5s infinite;
 }
 
 .button-pulse:before {
@@ -346,6 +360,18 @@ form input:focus {
     left: 0;
     z-index: -1;
     transform: scale(1);
+    /* Remove the continuous animation */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.button-pulse:hover {
+    animation: enhanced-pulse 1.5s infinite;
+}
+
+/* Add animation to :before element only on hover */
+.button-pulse:hover:before {
+    opacity: 1;
     animation: ripple 2s infinite;
 }
 
@@ -369,5 +395,189 @@ form input:focus {
     100% {
         transform: scale(1.5);
         opacity: 0;
+    }
+}
+
+/* Logo Styling */
+.logo-container {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    pointer-events: none; /* So it doesn't interfere with clicks */
+}
+
+.logo-circle {
+    width: 320px;
+    height: 320px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    position: absolute;
+    left: -180px;
+    top: -180px;
+    z-index: -1;
+    transform: translateX(-100px) scale(0.5);
+    animation: circle-slide 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s forwards;
+    opacity: 0;
+}
+
+.logo-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1;
+    transform: translateX(-100px);
+    animation: text-slide 1s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s forwards;
+    opacity: 0;
+}
+
+.logo-text span {
+
+    font-weight: 900;
+    font-size: 1.8rem;
+    color: var(--accent-color);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes circle-slide {
+    0% {
+        transform: translateX(-100px) scale(0.5);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0) scale(1);
+        opacity: 0.9;
+    }
+}
+
+@keyframes text-slide {
+    0% {
+        transform: translateX(-100px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Responsive logo */
+@media (max-width: 768px) {
+    .logo-circle {
+        width: 60px;
+        height: 60px;
+        left: -30px;
+        top: -15px;
+    }
+    
+    .logo-text span {
+        font-size: 1.4rem;
+    }
+}
+
+/* Logo Styling with Modern Font */
+.logo-container {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    pointer-events: none; /* So it doesn't interfere with clicks */
+}
+
+.logo-circle {
+    width: 320px;
+    height: 320px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    position: absolute;
+    left: -180px;
+    top: -180px;
+    z-index: -1;
+    transform: translateX(-100px) scale(0.5);
+    animation: circle-slide 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s forwards;
+    opacity: 0;
+}
+
+.logo-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 0.9;
+    transform: translateX(-100px);
+    animation: text-slide 1s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s forwards, 
+               logo-bounce 5s ease-in-out 2s infinite;
+    opacity: 0;
+    margin-left: 15px;
+}
+
+.logo-text span {
+    font-family: 'Fredoka One', cursive;
+    font-weight: 400;
+    font-size: 2.2rem;
+    color: var(--accent-color);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 3px 3px 0px var(--primary-color), 
+                 5px 5px 0px rgba(0, 0, 0, 0.5);
+    transform: rotate(-5deg);
+    display: block;
+}
+
+.logo-text span:last-child {
+    transform: rotate(-2deg);
+    margin-top: -5px;
+}
+
+@keyframes circle-slide {
+    0% {
+        transform: translateX(-100px) scale(0.5);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0) scale(1);
+        opacity: 0.9;
+    }
+}
+
+@keyframes text-slide {
+    0% {
+        transform: translateX(-100px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes logo-bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Responsive logo */
+@media (max-width: 768px) {
+    .logo-circle {
+        width: 200px;
+        height: 200px;
+        left: -120px;
+        top: -120px;
+    }
+    
+    .logo-text {
+        margin-left: 10px;
+    }
+    
+    .logo-text span {
+        font-size: 1.6rem;
+        letter-spacing: 1px;
     }
 }

@@ -208,5 +208,16 @@ def restaurant_details(restaurant_id):
     else:
         return redirect(url_for('home'))
         
+        
+@app.route('/booking')
+def booking():
+    if 'username' in session:
+        return render_template('user/booking.html')
+    else:
+        return redirect(url_for('home'))
+        
+        
+    
+
 if __name__ == '__main__':
     app.run(debug=True,port=80)
