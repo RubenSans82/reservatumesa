@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de restaurante</title>
+</head>
+<body>
+    <h1>Formulario de registro de restaurante</h1>
+    <form action="/registered_restaurant" method="POST">
+        <label for="username">Username</label>
+        <input type="text" name="username" id="username" required>
+        <label for="password">Password</label>
+        <input type="password" name="password" id="password" required>
+        <label for="restaurant_name">Name</label>
+        <input type="text" name="name" id="restaurant_name" required>
+        <label for="phone">Phone</label>
+        <input type="text" name="phone" id="phone" required>
+        <label for="address">Address</label>
+        <input type="text" name="address" id="address" required>
+        <label for="website">website</label>
+        <input type="text" name="website" id="website" required>
+        <label for="capacity">Capacity</label>
+        <input type="number" name="capacity" id="capacity" required>
+        <label for="description">Description</label>
+        <textarea name="description" id="description" required></textarea>    
+        <button type="submit">Registrarse</button>
+        
+    </form>
+    <a href="/login_restaurant">Login</a>
+    <!-- recuperar el mensaje de error en caso de que el restaurante ya exista -->
+    {% if mensaje %}
+        <p>{{ mensaje }}</p>
+    {% endif %}
+</body>
+</html>
