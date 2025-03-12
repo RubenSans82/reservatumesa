@@ -16,33 +16,34 @@ def login_page():
 
 @app.route('/logged_user',methods=['POST'])
 def login():
-    #obtener los datos del formulario
+    #obtener los data del formulario
     username = request.form['username'] 
     password = request.form['password']
-    #creamos la conexion
-    conexion = db.get_connection()
+    #creamos la connection
+    connection = db.get_connection()
     try:
-        with conexion.cursor() as cursor:
-            #creamos la consulta - solo buscamos por username
-            consulta = "SELECT * FROM client WHERE username = %s"
-            datos = (username)
-            cursor.execute(consulta,datos)
-            usuario = cursor.fetchone()
-            if usuario:
+        with connection.cursor() as cursor:
+            #creamos la query - solo buscamos por username
+            query = "SELECT * FROM client WHERE username = %s"
+            data = (username)
+            cursor.execute(query,data)
+            user = cursor.fetchone()
+            if user:
                 # Verificamos la contraseña con bcrypt
-                stored_password = usuario['password'].encode('utf-8')
+                stored_password = user['password'].encode('utf-8')
                 if bcrypt.checkpw(password.encode('utf-8'), stored_password):
-                    #guardar datos en session
+                    #guardar data en session
                     session['username'] = username
+                    session['client_id'] = user['client_id']
                     return redirect(url_for('userhome'))
                 else:
-                    return render_template("home.html",mensaje="Usuario o contraseña incorrecta")
+                    return render_template("home.html",message="usurario o contraseña incorrecta")
             else:
-                return render_template("home.html",mensaje="Usuario o contraseña incorrecta")
+                return render_template("home.html",message="usurario o contraseña incorrecta")
     except Exception as e:
         print("Ocurrió un error al conectar a la bbdd: ", e)
     finally:    
-        conexion.close()
+        connection.close()
         print("Conexión cerrada") 
         
 @app.route('/register_user')
@@ -51,34 +52,34 @@ def register_page():
         
 @app.route('/registered_user',methods=['POST'])
 def register():
-    #obtener los datos del formulario
+    #obtener los data del formulario
     username = request.form['username'] 
     password = request.form['password']
     phone = request.form['phone']
-    #creamos la conexion
-    conexion = db.get_connection()
+    #creamos la connection
+    connection = db.get_connection()
     try:
-        with conexion.cursor() as cursor:
-            # Verificar si el usuario ya existe
-            consulta = "SELECT * FROM client WHERE username = %s"
-            datos = (username)
-            cursor.execute(consulta,datos)
-            usuario = cursor.fetchone()
-            if usuario:
-                return render_template("user/register_user.html",mensaje="El usuario ya existe")
+        with connection.cursor() as cursor:
+            # Verificar si el user ya existe
+            query = "SELECT * FROM client WHERE username = %s"
+            data = (username)
+            cursor.execute(query,data)
+            user = cursor.fetchone()
+            if user:
+                return render_template("user/register_user.html",message="El usurario ya existe")
             else:
                 # Hash the password
                 hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-                #crear la consulta
-                consulta = "INSERT INTO client (username,password,phone) VALUES (%s,%s,%s)"
-                datos = (username,hashed,phone)
-                cursor.execute(consulta,datos)
-                conexion.commit()
-                return render_template("home.html",mensaje="Usuario registrado correctamente")
+                #crear la query
+                query = "INSERT INTO client (username,password,phone) VALUES (%s,%s,%s)"
+                data = (username,hashed,phone)
+                cursor.execute(query,data)
+                connection.commit()
+                return render_template("home.html",message="usurario registrado correctamente")
     except Exception as e:
         print("Ocurrió un error al conectar a la bbdd: ", e)
     finally:
-        conexion.close()
+        connection.close()
         print("Conexión cerrada")
         
         
@@ -89,25 +90,42 @@ def user():
 @app.route('/userhome')
 def userhome():
     if 'username' in session:
-        # coger la lista de restaurantes y sus datos
-        conexion = db.get_connection()
+        # coger la lista de restaurantes y sus data
+        connection = db.get_connection()
         try:
-            with conexion.cursor() as cursor:
-                consulta = "SELECT * FROM restaurant"
-                cursor.execute(consulta)
-                restaurantes = cursor.fetchall()
-                return render_template('user/home.html',restaurantes=restaurantes)
+            with connection.cursor() as cursor:
+                query = "SELECT * FROM restaurant"
+                cursor.execute(query)
+                restaurants = cursor.fetchall()
+                return render_template('user/home.html',restaurants=restaurants)
         except Exception as e:
             print("Ocurrió un error al conectar a la bbdd: ", e)
         finally:
-            conexion.close()
+            connection.close()
             print("Conexión cerrada")
     else:
-        return redirect(url_for('home'))        
+        return redirect(url_for('home'))    
+    
+@app.route('/restaurant/<int:restaurant_id>')
+def restaurant(restaurant_id):
+    if 'username' in session:
+        connection = db.get_connection()
+        try:
+            with connection.cursor() as cursor:
+                query = "SELECT * FROM restaurant WHERE restaurant_id = %s"
+                data = (restaurant_id)
+                cursor.execute(query,data)
+                restaurant = cursor.fetchone()
+                return render_template('user/restaurant.html',restaurant=restaurant)
+        except Exception as e:
+            print("Ocurrió un error al conectar a la bbdd: ", e)
+        finally:
+            connection.close()
+            print("Conexión cerrada")    
         
         
         
-        
+    
 
 if __name__ == '__main__':
     app.run(debug=True,port=80)
