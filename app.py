@@ -230,9 +230,9 @@ def restaurant():
                     # Only show confirmed or pending reservations, not rejected ones
                     for reservation in all_reservations:
                         # Get status with a default value if it doesn't exist
-                        status = reservation.get('status', 'pending')
+                        status = reservation.get('status', 'pendiente')
                         
-                        if status != 'rejected':  # Skip rejected reservations
+                        if status != 'cancelada':  # Skip rejected/canceled reservations
                             # Convert time to string format
                             if hasattr(reservation['time'], 'strftime'):
                                 res_time = reservation['time'].strftime('%H:%M')
@@ -398,8 +398,18 @@ def restaurant_reservations(date):
 @app.route('/restaurant/update_reservation_status', methods=['POST'])
 def update_reservation_status():
     if 'username' in session and session.get('user_type') == 'restaurant':
-        reservation_id = int(request.form.get('reservation_id'))  # Convert to int
-        new_status = request.form.get('status')
+        reservation_id = int(request.form.get('reservation_id'))
+        # Map the status values from the form to the actual enum values in the database
+        action = request.form.get('status')
+        
+        # Convert to the correct ENUM value
+        if action == 'confirm':
+            new_status = 'confirmada'
+        elif action == 'reject':
+            new_status = 'cancelada'
+        else:
+            new_status = 'pendiente'
+            
         date = request.form.get('date')
         
         print(f"Updating reservation {reservation_id} to status {new_status}")
@@ -420,7 +430,7 @@ def update_reservation_status():
                 print(f"Verification result: {result}")
                 
                 if result and result['username'] == session['username']:
-                    # Skip the ALTER TABLE attempt and directly update
+                    # Update the reservation status
                     update_query = "UPDATE reservation SET status = %s WHERE reservation_id = %s"
                     cursor.execute(update_query, (new_status, reservation_id))
                     rows_affected = cursor.rowcount

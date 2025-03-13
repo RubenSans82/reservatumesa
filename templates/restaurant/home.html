@@ -171,11 +171,11 @@
                                                 {% if reservation %}
                                                     {% set ns.seats_occupied = reservation.diners - 1 %}
                                                     {% set ns.current_res = reservation %}
-                                                    <td class="reservation-cell {{ 'reservation-pending' if reservation.status == 'pending' else 'reservation-confirmed' }}" colspan="{{ reservation.diners if reservation.diners <= (restaurant.capacity - seat_index) else (restaurant.capacity - seat_index) }}">
+                                                    <td class="reservation-cell {{ 'reservation-pending' if reservation.status == 'pendiente' else 'reservation-confirmed' }}" colspan="{{ reservation.diners if reservation.diners <= (restaurant.capacity - seat_index) else (restaurant.capacity - seat_index) }}">
                                                         {{ reservation.client_name }}<br>
                                                         {{ reservation.diners }} personas
                                                         <br>
-                                                        <small>{{ 'Pendiente' if reservation.status == 'pending' else 'Confirmada' }}</small>
+                                                        <small>{{ 'Pendiente' if reservation.status == 'pendiente' else 'Confirmada' }}</small>
                                                     </td>
                                                 {% else %}
                                                     <td></td>

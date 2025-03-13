@@ -109,19 +109,19 @@
                                     <td>{{ reservation.client_name }}</td>
                                     <td>{{ reservation.diners }} personas</td>
                                     <td>
-                                        {% if reservation.status == 'confirmed' %}
+                                        {% if reservation.status == 'confirmada' %}
                                             <span class="status-confirmed">Confirmada</span>
-                                        {% elif reservation.status == 'rejected' %}
-                                            <span class="status-rejected">Rechazada</span>
+                                        {% elif reservation.status == 'cancelada' %}
+                                            <span class="status-rejected">Cancelada</span>
                                         {% else %}
                                             <span class="status-pending">Pendiente</span>
                                         {% endif %}
                                     </td>
                                     <td class="action-buttons">
-                                        {% if reservation.status != 'confirmed' %}
+                                        {% if reservation.status != 'confirmada' %}
                                         <form action="/restaurant/update_reservation_status" method="POST" onsubmit="return confirm('¿Confirmar esta reserva?')">
                                             <input type="hidden" name="reservation_id" value="{{ reservation.reservation_id }}">
-                                            <input type="hidden" name="status" value="confirmed">
+                                            <input type="hidden" name="status" value="confirm">
                                             <input type="hidden" name="date" value="{{ selected_date }}">
                                             <button type="submit" class="btn btn-success btn-sm">
                                                 <i class="bi bi-check-lg"></i> Confirmar
@@ -129,10 +129,10 @@
                                         </form>
                                         {% endif %}
                                         
-                                        {% if reservation.status != 'rejected' %}
+                                        {% if reservation.status != 'cancelada' %}
                                         <form action="/restaurant/update_reservation_status" method="POST" onsubmit="return confirm('¿Rechazar esta reserva?')">
                                             <input type="hidden" name="reservation_id" value="{{ reservation.reservation_id }}">
-                                            <input type="hidden" name="status" value="rejected">
+                                            <input type="hidden" name="status" value="reject">
                                             <input type="hidden" name="date" value="{{ selected_date }}">
                                             <button type="submit" class="btn btn-danger btn-sm">
                                                 <i class="bi bi-x-lg"></i> Rechazar
