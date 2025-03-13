@@ -39,6 +39,13 @@
             <div class="col-md-10">
                 <h1 class="text-center mb-5">Lista de restaurantes</h1>
                 
+                <!-- Add reservations button -->
+                <div class="text-center mb-4">
+                    <a href="{{ url_for('my_reservations') }}" class="btn button-pulse btn-lg">
+                        <i class="bi bi-calendar-check"></i> Mis Reservas
+                    </a>
+                </div>
+                
                 <div class="restaurant-list">
                     {% for restaurant in restaurants %}
                         <div class="restaurant-item" {% if restaurant.image %}style="background-image: url('{{ url_for('static', filename='img/' + restaurant.image) }}'); background-size: cover; background-position: center;"{% endif %}>
