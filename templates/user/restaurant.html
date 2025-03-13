@@ -12,6 +12,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
+    <div class="geo-shape geo-square"></div>
+    <div class="geo-shape geo-rect"></div>
+    <div class="geo-shape geo-circle"></div>
+    <div class="geo-dots"></div>
     <!-- Logo in top left corner -->
     <div class="logo-container">
         <div class="logo-circle" style="transform: translateX(0) scale(1); opacity: 0.9; animation: none;"></div>
@@ -19,6 +23,11 @@
             <span>BOOK</span>
             <span>EAT</span>
         </div>
+    </div>
+
+    <!-- Back button in top right corner -->
+    <div class="back-container">
+        <a href="/userhome" class="btn back-btn"><i class="bi bi-arrow-left"></i> Volver</a>
     </div>
 
     <div class="container page-transition">
@@ -35,7 +44,7 @@
                             <li class="mb-3 food-icon restaurant"><strong>Descripción:</strong> {{ restaurant.description }}</li>
                             <li class="mb-3 food-icon address"><strong>Dirección:</strong> {{ restaurant.address }}</li>
                             <li class="mb-3 food-icon phone"><strong>Teléfono:</strong> {{ restaurant.phone }}</li>
-                            <li class="mb-3 food-icon website"><strong>Website:</strong> {{ restaurant.website }}</li>
+                            <li class="mb-3 food-icon website"><strong>Website:</strong><a href="{{ restaurant.website }}" class="restaurant-link"> {{ restaurant.website }}</a></li>
                         </ul>
                     </div>
                 </div>
@@ -87,9 +96,21 @@
             z-index: -1;
         }
         
-        .restaurant-card:hover .restaurant-details {
-            transform: scale(1.02);
-            transition: transform 0.3s ease;
+
+
+        /* Custom style for links in yellow restaurant card */
+        .restaurant-link {
+            color: var(--primary-color);
+            text-decoration: underline;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .restaurant-link:hover {
+            color: var(--dark-color);
+            text-decoration: underline;
+            transform: translateY(0);
+            text-shadow: none;
         }
     </style>
 </body>

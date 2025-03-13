@@ -12,6 +12,12 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
+    <div class="geo-shape geo-square"></div>
+    <div class="geo-shape geo-rect"></div>
+    <div class="geo-shape geo-circle"></div>
+    <div class="geo-dots"></div>
+    <div class="geo-dots geo-dots-alt"></div>
+
     <!-- Logo in top left corner -->
     <div class="logo-container">
         <div class="logo-circle" style="transform: translateX(0) scale(1); opacity: 0.9; animation: none;"></div>
@@ -24,7 +30,7 @@
     <!-- Logout button at top right -->
     <div class="logout-container">
         <a href="/logout" class="btn button-pulse logout-btn">
-            <i class="bi bi-box-arrow-right"></i> Logout
+            <i class="bi bi-box-arrow-right"></i> Bye Bye!!!
         </a>
     </div>
 
@@ -35,11 +41,11 @@
                 
                 <div class="restaurant-list">
                     {% for restaurant in restaurants %}
-                        <div class="restaurant-item">
+                        <div class="restaurant-item" {% if restaurant.image %}style="background-image: url('{{ url_for('static', filename='img/' + restaurant.image) }}'); background-size: cover; background-position: center;"{% endif %}>
                             <div class="restaurant-content">
                                 <h3>{{ restaurant.restaurant_name }}</h3>
                                 <a href="/restaurant/{{ restaurant.restaurant_id }}" class="btn button-pulse">
-                                    <i class="bi bi-eye"></i> Ver restaurante
+                                    <i class="bi bi-eye"></i> Ver
                                 </a>
                             </div>
                         </div>

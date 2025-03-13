@@ -12,6 +12,12 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
+    <div class="geo-shape geo-square"></div>
+    <div class="geo-shape geo-rect"></div>
+    <div class="geo-shape geo-circle"></div>
+    <div class="geo-dots"></div>
+    <div class="geo-dots geo-dots-alt"></div>
+
     <!-- Logo in top left corner (without entry animation) -->
     <div class="logo-container">
         <div class="logo-circle" style="transform: translateX(0) scale(1); opacity: 0.9; animation: none;"></div>
@@ -21,22 +27,27 @@
         </div>
     </div>
 
+    <!-- Back button in top right corner -->
+    <div class="back-container">
+        <a href="/" class="btn back-btn"><i class="bi bi-arrow-left"></i> Volver</a>
+    </div>
+
     <div class="container page-transition">
         <div class="row justify-content-center">
             <div class="col-md-8 col-lg-6">
-                <h1 class="text-center mb-4">Formulario de login restaurante</h1>
+                <h1 class="text-center mb-4">Abre la Cocina!!!</h1>
                 
                 <form action="/restaurant" method="POST">
-                    <label for="username">Username</label>
+                    <label for="username">Usuario</label>
                     <input type="username" name="username" id="username" required>
-                    <label for="password">Password</label>
+                    <label for="password">Contraseña</label>
                     <input type="password" name="password" id="password" required>
-                    <button type="submit" class="w-100">Login</button>
+                    <button type="submit" class="w-100">A Cocinar!!!</button>
                 </form>
                 
                 <div class="text-center mt-4 register-section">
                     <p class="text-white mb-3">¿No tienes cuenta todavía? Crea una cuenta para tu restaurante:</p>
-                    <a href="/register_restaurant" class="btn button-pulse">Registrarse</a>
+                    <a href="/register_restaurant" class="btn button-pulse">Registrate!!!</a>
                 </div>
             </div>
         </div>
