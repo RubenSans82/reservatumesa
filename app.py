@@ -398,7 +398,7 @@ def restaurant_reservations(date):
 @app.route('/restaurant/update_reservation_status', methods=['POST'])
 def update_reservation_status():
     if 'username' in session and session.get('user_type') == 'restaurant':
-        reservation_id = request.form.get('reservation_id')
+        reservation_id = int(request.form.get('reservation_id'))  # Convert to int
         new_status = request.form.get('status')
         date = request.form.get('date')
         
@@ -420,16 +420,7 @@ def update_reservation_status():
                 print(f"Verification result: {result}")
                 
                 if result and result['username'] == session['username']:
-                    # Try to add the status column if it doesn't exist
-                    try:
-                        cursor.execute("ALTER TABLE reservation ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'pending'")
-                        connection.commit()
-                    except Exception as e:
-                        print(f"Error checking/adding status column: {e}")
-                        # Ignore error - column might already exist
-                        pass
-                    
-                    # Now update the reservation status
+                    # Skip the ALTER TABLE attempt and directly update
                     update_query = "UPDATE reservation SET status = %s WHERE reservation_id = %s"
                     cursor.execute(update_query, (new_status, reservation_id))
                     rows_affected = cursor.rowcount
@@ -437,7 +428,6 @@ def update_reservation_status():
                     
                     print(f"Status updated successfully to {new_status}. Rows affected: {rows_affected}")
                     
-                    # Return to the reservations page with success message
                     return redirect(url_for('restaurant_reservations', date=date))
                 else:
                     return render_template("home.html", message="No tienes permiso para modificar esta reserva")
