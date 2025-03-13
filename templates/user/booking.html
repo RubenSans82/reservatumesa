@@ -46,11 +46,11 @@
                         <label for="restaurant">Restaurante</label>
                         <p id="restaurant">{{ restaurant.restaurant_name }} </p>
                         <input type="hidden" name="restaurant" value="{{ restaurant.restaurant_id }}">
-                        <input type="hidden" name="user" value="1">
+                        <input type="hidden" name="user" value="{{session['client_id']}}">
                     </div>
                     <div class="form-group">
                         <label for="people">Personas</label>
-                        <input type="number" name="people" id="people" class="form-control" required>
+                        <input type="number" name="people" id="people" class="form-control" min="1" max="{{ restaurant.capacity }}" required> 
                     </div>
                     <div class="form-group">
                         <label for="date">Fecha</label>
