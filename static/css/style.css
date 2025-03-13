@@ -942,7 +942,7 @@ input.invalid, textarea.invalid {
         0px -2px 0 #000,
         -2px 0px 0 #000,
         2px 0px 0 #000,
-        4px 4px 6px rgba(0, 0, 0, 0.8);
+         4px 4px 6px rgba(0, 0, 0, 0.8);
 }
 
 .restaurant-content h3 {
@@ -955,7 +955,7 @@ input.invalid, textarea.invalid {
     backdrop-filter: blur(2px);
 }
 
-/* Botón "Ver" - oculto por defecto */
+/* Botón "Ver" en home.html - oculto por defecto */
 .restaurant-content .btn {
     margin-top: auto;
     margin-bottom: -8px;
@@ -975,16 +975,6 @@ input.invalid, textarea.invalid {
     transform: translateY(0);
 }
 
-.restaurant-content .btn {
-    margin-top: auto;
-    margin-bottom: -8px;
-    align-self: center;
-    padding: 12px 25px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
-    border: 2px solid white;
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
-}
-
 /* Restaurant header styling with specific overrides */
 .restaurant-item .restaurant-header {
     width: 100%;
@@ -1039,7 +1029,7 @@ input.invalid, textarea.invalid {
     position: static;
 }
 
-/* Consolidated reservation actions styling */
+/* Consolidated reservation actions styling - Updated to hide buttons by default */
 .restaurant-item .reservation-actions {
     display: flex;
     gap: 10px;
@@ -1049,675 +1039,49 @@ input.invalid, textarea.invalid {
     bottom: 20px;
     left: 0;
     padding: 0 25px;
-}
-
-.restaurant-item .reservation-actions .btn {
-    flex: 1;
-    padding: 8px 12px;
-    font-size: 0.9rem;
-}
-
-/* Reservation status badge styling */
-.restaurant-item .reservation-status {
-    position: absolute;
-    left: 50%;
-    top: 5px;
-    transform: translateX(-50%);
-    z-index: 10;
-    font-size: 0.9rem;
-    padding: 8px 16px;
-    border-radius: 20px;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
-    white-space: nowrap;
-}
-
-/* Ajuste de altura para las tarjetas de reservas */
-.restaurant-item {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-    transition: all 0.4s ease;
-    border-left: 5px solid var(--accent-color);
-    backdrop-filter: blur(5px);
-    position: relative;
-    padding-top: 35px; /* Aumentar el espacio superior para que quepa el badge */
-    display: flex;
-    flex-direction: column;
-    min-height: 350px; /* Mayor altura mínima para la tarjeta */
-}
-
-.restaurant-item:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
-    border-left: 5px solid var(--primary-color);
-}
-
-.restaurant-content {
-    padding: 25px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    min-height: 180px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    padding-bottom: 90px; /* Mayor espacio para los botones en la parte inferior */
-    flex-grow: 1;
-    min-height: 250px; /* Mayor altura mínima para el contenido */
-}
-
-.restaurant-content h3 {
-    color: white;
-    font-size: 1.5rem;
-    margin-bottom: 20px;
-    margin-top: -10px; /* Move restaurant name higher */
-    font-weight: 700;
-    /* Enhanced text shadow for better visibility */
-    text-shadow: 
-        2px 2px 0 #000,
-        -2px 2px 0 #000,
-        2px -2px 0 #000,
-        -2px -2px 0 #000,
-        0px 2px 0 #000,
-        0px -2px 0 #000,
-        -2px 0px 0 #000,
-        2px 0px 0 #000,
-        4px 4px 6px rgba(0, 0, 0, 0.8);
-    width: 100%;
-    padding: 6px;
-    /* Optional semi-transparent background for extra legibility */
-    background-color: rgba(0, 0, 0, 0.4);
-    border-radius: 8px;
-    backdrop-filter: blur(2px);
-}
-
-.restaurant-content .btn {
-    margin-top: auto;
-    margin-bottom: -8px; /* Move button lower */
-    align-self: center;
-    padding: 12px 25px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.6); /* Stronger shadow */
-    border: 2px solid white; /* White border for contrast */
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8); /* Text shadow for readability */
-}
-
-/* Mayor espaciado para los detalles de la reserva */
-.restaurant-item .reservation-details {
-    background-color: rgba(0, 0, 0, 0.6);
-    padding: 15px; /* Más padding interno */
-    border-radius: 8px;
-    margin: 15px 0 25px; /* Más espacio arriba y abajo */
-    width: 100%;
-    backdrop-filter: blur(3px);
-    margin-bottom: 10px;
-    width: 100%;
-}
-
-.restaurant-item .reservation-details p {
-    color: white;
-    margin-bottom: 5px;
-    font-size: 0.95rem;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-}
-
-.restaurant-item .reservation-details i {
-    color: var(--accent-color);
-    width: 20px;
-    display: inline-block;
-    text-align: center;
-    margin-right: 5px;
-}
-
-.restaurant-item .badge {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 0.85rem;
-    padding: 8px 12px;
-    border-radius: 20px;
-    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
-    position: static;
-}
-
-/* Ajuste de la posición de los botones */
-.restaurant-item .reservation-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 8px;
-    width: 100%;
-    justify-content: center;
-    position: absolute;
-    bottom: 20px; /* Un poco más abajo para dar espacio */
-    left: 0;
-    width: 100%;
-    padding: 0 25px;
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-}
-
-.restaurant-item .reservation-actions .btn {
-    flex: 1;
-    padding: 8px 12px;
-    font-size: 0.9rem;
-}
-
-/* Estilo para el badge de status en la parte superior */
-.restaurant-item .reservation-status {
-    position: absolute;
-    left: 50%;
-    top: 5px; /* Cambiar de -15px a 5px para que sea visible */
-    transform: translateX(-50%);
-    z-index: 10;
-    font-size: 0.9rem;
-    padding: 8px 16px;
-    border-radius: 20px;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
-    white-space: nowrap;
-}
-
-/* Encabezado para el nombre del restaurante */
-.restaurant-item .restaurant-header {
-    width: 100%;
-    text-align: center;
-    margin-top: 5px;
-    margin-bottom: 20px;
-    background-color: rgba(0, 0, 0, 0.6);
-    border-radius: 8px;
-    padding: 10px;
-    backdrop-filter: blur(2px);
-}
-
-.restaurant-item .restaurant-header h3 {
-    margin: 0;
-    font-size: 1.4rem;
-    padding: 0;
-    background-color: transparent; /* Fondo transparente para evitar acumulación de opacidad */
-    width: 100%;
-    text-align: center;
-}
-
-/* Regla general para h3 en restaurant-content (necesaria para los ítems en home.html) */
-.restaurant-content h3 {
-    color: white;
-    font-size: 1.5rem;
-    margin-bottom: 20px;
-    margin-top: -10px;
-    font-weight: 700;
-    text-shadow: 
-        2px 2px 0 #000,
-        -2px 2px 0 #000,
-        2px -2px 0 #000,
-        -2px -2px 0 #000,
-        0px 2px 0 #000,
-        0px -2px 0 #000,
-        -2px 0px 0 #000,
-        2px 0px 0 #000,
-        4px 4px 6px rgba(0, 0, 0, 0.8);
-    width: 100%;
-    padding: 6px;
-    background-color: rgba(0, 0, 0, 0.4); /* Mantener solo para los h3 que no estén en .restaurant-header */
-    border-radius: 8px;
-    backdrop-filter: blur(2px);
-}
-
-/* Responsive adjustments for restaurant list */
-@media (max-width: 768px) {
-    .restaurant-list {
-        grid-template-columns: 1fr;
-    }
-    
-    .logout-container {
-        top: 15px;
-        right: 15px;
-    }
-    
-    .logout-btn {
-        padding: 10px 15px;
-        font-size: 0.9rem;
-    }
-}
-
-/* Restaurant name styling in booking form */
-#restaurant {
-    color: var(--dark-color); /* Dark color for contrast on yellow background */
-    font-weight: 700; /* Bold text */
-    font-size: 1.2rem; /* Slightly larger */
-    margin-bottom: 15px; /* Space below */
-    padding: 8px 0; /* Vertical padding */
-    background-color: rgba(255, 255, 255, 0.5); /* Semi-transparent white background */
-    border-radius: 6px; /* Rounded corners */
-    padding: 10px; /* Padding around text */
-    border-left: 4px solid var(--primary-color); /* Accent border */
-    text-shadow: none; /* Remove any text shadow */
-}
-
-/* Loading animation for page transitions */
-.page-transition {
-    animation: zoom-fade 0.7s ease-in-out;
-}
-
-@keyframes zoom-fade {
-    from {
-        opacity: 0;
-        transform: scale(0.9) translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
-}
-
-/* Customize Bootstrap elements */
-.navbar {
-    background-color: white;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.list-group-item {
-    border-left: 5px solid transparent;
-    transition: all var(--transition-speed);
-}
-
-.list-group-item:hover {
-    border-left-color: var(--accent-color);
-    background-color: rgba(255, 209, 102, 0.1);
-}
-
-/* Add some food-themed icons */
-.food-icon::before {
-    font-family: "Bootstrap-icons";
-    margin-right: 8px;
-    color: var(--primary-color);
-}
-
-.food-icon.restaurant::before { content: "🍽️"; }
-.food-icon.phone::before { content: "📞"; }
-.food-icon.address::before { content: "📍"; }
-.food-icon.website::before { content: "🌐"; }
-
-/* Enhanced Button animations */
-.button-bounce {
-    transition: transform 0.4s ease;
-}
-
-.button-bounce:hover {
-    transform: translateY(-8px) scale(1.08);
-    animation: enhanced-bounce 1s infinite;
-}
-
-@keyframes enhanced-bounce {
-    0%, 100% {
-        transform: translateY(-8px) scale(1.08);
-    }
-    50% {
-        transform: translateY(-15px) scale(1.08);
-    }
-}
-
-/* Fix Button Pulse animation - only activate on hover */
-.button-pulse {
-    transition: all 0.4s ease;
-    position: relative;
-    z-index: 1;
-}
-
-.button-pulse:before {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 50px;
-    top: 0;
-    left: 0;
-    z-index: -1;
-    transform: scale(1);
-    /* Remove the continuous animation */
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-.button-pulse:hover {
-    animation: enhanced-pulse 1.5s infinite;
-}
-
-/* Add animation to :before element only on hover */
-.button-pulse:hover:before {
+.restaurant-item:hover .reservation-actions {
     opacity: 1;
-    animation: ripple 2s infinite;
-}
-
-@keyframes enhanced-pulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(0, 194, 168, 0.8);
-    }
-    70% {
-        box-shadow: 0 0 0 15px rgba(0, 194, 168, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(0, 194, 168, 0);
-    }
-}
-
-@keyframes ripple {
-    0% {
-        transform: scale(1);
-        opacity: 1;
-    }
-    100% {
-        transform: scale(1.5);
-        opacity: 0;
-    }
-}
-
-/* Logo Styling with Modern Font - consolidated from two separate declarations */
-.logo-container {
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    pointer-events: none; /* So it doesn't interfere with clicks */
-}
-
-.logo-circle {
-    width: 320px;
-    height: 320px;
-    background-color: var(--primary-color);
-    border-radius: 50%;
-    position: absolute;
-    left: -180px;
-    top: -180px;
-    z-index: -1;
-    transform: translateX(-100px) scale(0.5);
-    animation: circle-slide 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s forwards;
-    opacity: 0;
-}
-
-.logo-text {
-    display: flex;
-    flex-direction: column;
-    line-height: 0.9;
-    transform: translateX(-100px);
-    animation: text-slide 1s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s forwards, 
-               logo-bounce 5s ease-in-out 2s infinite;
-    opacity: 0;
-    margin-left: 15px;
-}
-
-.logo-text span {
-    font-family: 'Fredoka One', cursive;
-    font-weight: 400;
-    font-size: 2.2rem;
-    color: var(--accent-color);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    text-shadow: 3px 3px 0px var(--primary-color), 
-                 5px 5px 0px rgba(0, 0, 0, 0.5);
-    transform: rotate(-5deg);
-    display: block;
-}
-
-.logo-text span:last-child {
-    transform: rotate(-2deg);
-    margin-top: -5px;
-}
-
-@keyframes circle-slide {
-    0% {
-        transform: translateX(-100px) scale(0.5);
-        opacity: 0;
-    }
-    100% {
-        transform: translateX(0) scale(1);
-        opacity: 0.9;
-    }
-}
-
-@keyframes text-slide {
-    0% {
-        transform: translateX(-100px);
-        opacity: 0;
-    }
-    100% {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-@keyframes logo-bounce {
-    0%, 100% {
-        transform: translateY(0);
-    }
-    50% {
-        transform: translateY(-10px);
-    }
-}
-
-/* Responsive logo - consolidated from two separate declarations */
-@media (max-width: 768px) {
-    .logo-circle {
-        width: 200px;
-        height: 200px;
-        left: -120px;
-        top: -120px;
-    }
-    
-    .logo-text {
-        margin-left: 10px;
-    }
-    
-    .logo-text span {
-        font-size: 1.6rem;
-        letter-spacing: 1px;
-    }
-    
-    /* Added consolidated responsive styling for buttons and containers */
-    .back-container, .logout-container {
-        top: 15px;
-        right: 15px;
-    }
-    
-    .back-btn, .logout-btn {
-        padding: 10px 15px;
-        font-size: 0.9rem;
-    }
-    
-    .restaurant-list {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* Logout and Back button styles */
-.logout-container, .back-container {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
-}
-
-.logout-btn, .back-btn {
-    padding: 12px 24px;
-    color: white;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.logout-btn {
-    background-color: var(--primary-color);
-    box-shadow: 0 6px 15px rgba(255, 46, 99, 0.4);
-}
-
-.back-btn {
-    background-color: var(--secondary-color);
-    box-shadow: 0 6px 15px rgba(0, 194, 168, 0.4);
-}
-
-.logout-btn:hover, .back-btn:hover {
-    background-color: var(--accent-color);
-    transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(255, 190, 11, 0.5);
-}
-
-.logout-btn i, .back-btn i {
-    margin-right: 8px;
-}
-
-/* Restaurant list styling - consolidated duplicate properties */
-.restaurant-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    grid-gap: 25px;
-    margin-top: 30px;
-}
-
-.restaurant-item {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-    transition: all 0.4s ease;
-    border-left: 5px solid var(--accent-color);
-    backdrop-filter: blur(5px);
-    position: relative;
-    padding-top: 35px;
-    display: flex;
-    flex-direction: column;
-    min-height: 350px;
-}
-
-.restaurant-item:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
-    border-left: 5px solid var(--primary-color);
-}
-
-.restaurant-content {
-    padding: 25px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    padding-bottom: 90px;
-    flex-grow: 1;
-    min-height: 250px;
-}
-
-/* Consolidated styling for h3 elements with shared properties */
-.restaurant-content h3, .restaurant-item .restaurant-header h3 {
-    color: white;
-    font-weight: 700;
-    width: 100%;
-    text-align: center;
-    text-shadow: 
-        2px 2px 0 #000,
-        -2px 2px 0 #000,
-        2px -2px 0 #000,
-        -2px -2px 0 #000,
-        0px 2px 0 #000,
-        0px -2px 0 #000,
-        -2px 0px 0 #000,
-        2px 0px 0 #000,
-        4px 4px 6px rgba(0, 0, 0, 0.8);
-}
-
-.restaurant-content h3 {
-    font-size: 1.5rem;
-    margin-bottom: 20px;
-    margin-top: -40px;
-    padding: 6px;
-    background-color: rgba(0, 0, 0, 0.4);
-    border-radius: 8px;
-    backdrop-filter: blur(2px);
-}
-
-.restaurant-content .btn {
-    margin-top: auto;
-    margin-bottom: -8px;
-    align-self: center;
-    padding: 12px 25px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
-    border: 2px solid white;
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
-}
-
-/* Restaurant header styling with specific overrides */
-.restaurant-item .restaurant-header {
-    width: 100%;
-    text-align: center;
-    margin-top: 5px;
-    margin-bottom: 20px;
-    background-color: rgba(0, 0, 0, 0.6);
-    border-radius: 8px;
-    padding: 10px;
-    backdrop-filter: blur(2px);
-}
-
-.restaurant-item .restaurant-header h3 {
-    margin: 0;
-    font-size: 1.4rem;
-    padding: 0;
-    background-color: transparent;
-}
-
-/* Consolidated reservation details styling */
-.restaurant-item .reservation-details {
-    background-color: rgba(0, 0, 0, 0.6);
-    padding: 15px;
-    border-radius: 8px;
-    margin: 15px 0 25px;
-    width: 100%;
-    backdrop-filter: blur(3px);
-    margin-bottom: 10px;
-}
-
-.restaurant-item .reservation-details p {
-    color: white;
-    margin-bottom: 5px;
-    font-size: 0.95rem;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-}
-
-.restaurant-item .reservation-details i {
-    color: var(--accent-color);
-    width: 20px;
-    display: inline-block;
-    text-align: center;
-    margin-right: 5px;
-}
-
-/* Consolidated badge styling */
-.restaurant-item .badge {
-    font-size: 0.85rem;
-    padding: 8px 12px;
-    border-radius: 20px;
-    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
-    position: static;
-}
-
-/* Consolidated reservation actions styling */
-.restaurant-item .reservation-actions {
-    display: flex;
-    gap: 10px;
-    width: 100%;
-    justify-content: center;
-    position: absolute;
-    bottom: 20px;
-    left: 0;
-    padding: 0 25px;
+    transform: translateY(0);
 }
 
 .restaurant-item .reservation-actions .btn {
     flex: 1;
-    padding: 8px 12px;
+    padding: 8px 10px;
     font-size: 0.9rem;
+    white-space: nowrap; /* Prevent text from wrapping */
+    min-width: 0; /* Allow flex items to shrink below content size */
+    overflow: hidden; /* Hide overflowing content */
+    text-overflow: ellipsis; /* Add ellipsis for overflowing text */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Ensure restaurant item has sufficient width */
+.restaurant-item {
+    /* ...existing code... */
+    min-width: 280px; /* Ensure minimum width for card */
+}
+
+/* Add responsive adjustments for buttons on small screens */
+@media (max-width: 350px) {
+    .restaurant-item .reservation-actions {
+        flex-direction: column; /* Stack buttons vertically on very small screens */
+        padding: 0 15px;
+    }
+    
+    .restaurant-item .reservation-actions .btn {
+        margin-bottom: 5px;
+    }
+    
+    .restaurant-item {
+        min-height: 380px; /* Increase height to accommodate stacked buttons */
+    }
 }
 
 /* Reservation status badge styling */
@@ -1747,7 +1111,7 @@ input.invalid, textarea.invalid {
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
     border: 3px solid var(--accent-color);
     position: relative;
-    transform: rotate(-1deg);
+    transform: rotate(0deg);
     transition: all 0.4s ease;
     overflow: hidden;
 }
@@ -1941,7 +1305,7 @@ input.invalid, textarea.invalid {
 }
 
 @keyframes modal-hover-wobble {
-    0%, 100% { transform: rotate(-1deg); }
+    0%, 100% { transform: rotate(0deg); }
     25% { transform: rotate(1deg) scale(1.01); }
     50% { transform: rotate(-0.5deg) scale(1.02); }
     75% { transform: rotate(0.5deg) scale(1.01); }
@@ -1979,5 +1343,199 @@ input.invalid, textarea.invalid {
     .modal-footer .btn {
         width: 100%;
         margin: 5px 0;
+    }
+}
+
+/* Reservation Table Styling - Updated with darker background */
+.reservation-table {
+    background-color: rgba(37, 42, 52, 0.7) !important; /* Darker background using dark-color variable with opacity */
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(5px);
+    margin-top: 30px;
+    border: none;
+    border-left: 5px solid var(--accent-color); /* Matching border style with cards */
+}
+
+.reservation-table thead th {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 15px;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+.reservation-table tbody tr {
+    background-color: rgba(255, 255, 255, 0.03); /* Much more subtle transparency */
+    transition: all 0.3s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.reservation-table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    position: relative;
+    z-index: 2;
+}
+
+/* Override Bootstrap table styles */
+.table {
+    --bs-table-bg: transparent !important;
+    --bs-table-accent-bg: transparent !important;
+}
+
+/* Status indicators */
+.status-confirmed, 
+.status-rejected, 
+.status-pending {
+    display: inline-block;
+    padding: 8px 15px;
+    border-radius: 50px;
+    font-weight: 600;
+    text-align: center;
+    width: 110px;
+    letter-spacing: 0.5px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.status-confirmed {
+    background-color: #22c55e;
+    color: white;
+    animation: status-pulse-green 2s infinite;
+}
+
+.status-rejected {
+    background-color: #ef4444;
+    color: white;
+}
+
+.status-pending {
+    background-color: var(--accent-color);
+    color: var(--dark-color);
+    animation: status-pulse-yellow 2s infinite;
+}
+
+@keyframes status-pulse-green {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+    50% { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+}
+
+@keyframes status-pulse-yellow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255, 190, 11, 0.7); }
+    50% { box-shadow: 0 0 0 8px rgba(255, 190, 11, 0); }
+}
+
+/* Action buttons container */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.action-buttons form {
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: none;
+    box-shadow: none;
+    transform: none;
+}
+
+.action-buttons form:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.action-buttons form::before {
+    display: none;
+}
+
+.action-buttons .btn {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.action-buttons .btn-success {
+    background-color: #22c55e;
+    border: none;
+    box-shadow: 0 3px 6px rgba(34, 197, 94, 0.3);
+}
+
+.action-buttons .btn-danger {
+    background-color: var(--primary-color);
+    border: none;
+    box-shadow: 0 3px 6px rgba(255, 46, 99, 0.3);
+}
+
+.action-buttons .btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Date selector styling */
+.date-selector {
+    margin: 25px 0;
+}
+
+.date-selector .input-group {
+    max-width: 400px;
+    margin: 0 auto;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    border-radius: 50px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.date-selector input[type="date"] {
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 2px solid var(--accent-color);
+    border-radius: 50px 0 0 50px;
+    padding: 10px 15px;
+    font-weight: 500;
+    color: var(--dark-color);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1) inset;
+}
+
+.date-selector input[type="date"]:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(255, 46, 99, 0.25);
+}
+
+.date-selector .btn {
+    border-radius: 0 50px 50px 0;
+    margin: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .reservation-table {
+        font-size: 0.85rem;
+    }
+    
+    .reservation-table td, 
+    .reservation-table th {
+        padding: 10px 8px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .status-confirmed, 
+    .status-rejected, 
+    .status-pending {
+        padding: 5px 8px;
+        font-size: 0.8rem;
+        width: 90px;
     }
 }

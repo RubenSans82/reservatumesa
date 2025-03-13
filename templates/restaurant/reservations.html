@@ -10,50 +10,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Fredoka+One&family=Righteous&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <style>
-        .reservation-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            margin-bottom: 2rem;
-        }
-        
-        .reservation-table th, 
-        .reservation-table td {
-            padding: 12px;
-            text-align: center;
-            vertical-align: middle;
-        }
-        
-        .status-pending {
-            background-color: #ffeeba;
-            color: #856404;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-weight: 500;
-        }
-        
-        .status-confirmed {
-            background-color: #d4edda;
-            color: #155724;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-weight: 500;
-        }
-        
-        .status-rejected {
-            background-color: #f8d7da;
-            color: #721c24;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-weight: 500;
-        }
-        
-        .action-buttons form {
-            display: inline-block;
-            margin: 0 5px;
-        }
-    </style>
 </head>
 <body>
     <div class="geo-shape geo-square"></div>

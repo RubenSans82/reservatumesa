@@ -48,7 +48,10 @@
                     <div class="restaurant-list">
                         {% for reservation in reservations %}
                             <div class="restaurant-item" {% if reservation.image %}style="background-image: url('{{ url_for('static', filename='img/' + reservation.image) }}'); background-size: cover; background-position: center;"{% endif %}>
-                                <span class="badge bg-primary reservation-status">
+                                <span class="badge reservation-status 
+                                    {% if reservation.status == 'confirmada' %}bg-success
+                                    {% elif reservation.status == 'cancelada' %}bg-danger
+                                    {% else %}bg-primary{% endif %}">
                                     {% if reservation.status %}
                                         {{ reservation.status|capitalize }}
                                     {% else %}
