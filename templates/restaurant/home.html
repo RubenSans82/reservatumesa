@@ -16,14 +16,18 @@
             border-collapse: separate;
             border-spacing: 0;
             margin-bottom: 2rem;
+            table-layout: fixed;
         }
         
         .reservation-table th, 
         .reservation-table td {
             border: 1px solid #ddd;
-            padding: 8px 5px;
+            padding: 5px 2px;
             text-align: center;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         
         .reservation-table th {
@@ -33,17 +37,23 @@
         .time-slot {
             font-weight: bold;
             background-color: #f8f9fa;
-            width: 80px;
+            width: 60px;
+            min-width: 60px;
+            max-width: 60px;
         }
         
         .seat-column {
-            min-width: 40px;
+            width: calc(100% / {{ restaurant.capacity + 1 }});
+            min-width: 30px;
         }
         
         .reservation-cell {
             background-color: rgba(25, 135, 84, 0.7);
             color: white;
             border-radius: 4px;
+            white-space: normal;
+            font-size: 0.75rem;
+            line-height: 1.2;
         }
         
         .break-time {
@@ -60,6 +70,15 @@
             margin-bottom: 15px;
             font-style: italic;
             color: #6c757d;
+        }
+
+        /* For very large capacities, add horizontal scroll but only when needed */
+        @media (max-width: 992px) {
+            .table-container {
+                overflow-x: auto;
+                max-width: 100%;
+                -webkit-overflow-scrolling: touch;
+            }
         }
     </style>
 </head>
@@ -106,8 +125,8 @@
                     <p>Capacidad del restaurante: {{ restaurant.capacity }} personas</p>
                 </div>
                 
-                <!-- Reservation table -->
-                <div class="table-responsive">
+                <!-- Reservation table - using an outer div for controlled overflow -->
+                <div class="table-container">
                     <table class="reservation-table">
                         <thead>
                             <tr>
