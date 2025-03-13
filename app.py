@@ -43,9 +43,9 @@ def login():
                     session['client_id'] = user['client_id']
                     return redirect(url_for('userhome'))
                 else:
-                    return render_template("home.html",message="usurario o contraseña incorrecta")
+                    return render_template("user/login_user.html",message="usurario o contraseña incorrecta")
             else:
-                return render_template("home.html",message="usurario o contraseña incorrecta")
+                return render_template("user/login_user.html",message="usurario o contraseña incorrecta")
     except Exception as e:
         print("Ocurrió un error al conectar a la bbdd: ", e)
         return render_template("home.html",mensaje="Error de conexión a la base de datos")
@@ -76,9 +76,9 @@ def loginRest():
                     session['user_type'] = 'restaurant'
                     return redirect(url_for('restaurant'))
                 else:
-                    return render_template("home.html", message="Usuario o contraseña incorrecta")
+                    return render_template("restaurant/login_restaurant.html", message="Usuario o contraseña incorrecta")
             else:
-                return render_template("home.html", message="Usuario o contraseña incorrecta")
+                return render_template("restaurant/login_restaurant.html", message="Usuario o contraseña incorrecta")
     except Exception as e:
         print("Ocurrió un error al conectar a la bbdd: ", e)
         return render_template("home.html", message="Error de conexión a la base de datos")
@@ -119,7 +119,7 @@ def register():
                 data = (username,hashed,phone)
                 cursor.execute(query,data)
                 connection.commit()
-                return render_template("home.html",message="usurario registrado correctamente")
+                return render_template("user/login_user.html",message="usurario registrado correctamente")
     except Exception as e:
         print("Ocurrió un error al conectar a la bbdd: ", e)
     finally:
@@ -179,7 +179,7 @@ def userhome():
         connection = db.get_connection()
         try:
             with connection.cursor() as cursor:
-                query = "SELECT * FROM restaurant"
+                query = "SELECT * FROM restaurant ORDER BY restaurant_name ASC"
                 cursor.execute(query)
                 restaurants = cursor.fetchall()
                 return render_template('user/home.html',restaurants=restaurants)
@@ -254,6 +254,11 @@ def add_booking():
     finally:
         conexion.close()
         print("Conexión cerrada")
+
+@app.route('/logout')
+def logout():
+    session.pop('username', None)
+    return redirect(url_for('home'))
 
 if __name__ == '__main__':
     app.run(debug=True,port=80)
