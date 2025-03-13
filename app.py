@@ -175,12 +175,37 @@ def restaurant():
         connection = db.get_connection()
         try:
             with connection.cursor() as cursor:
+                # Get restaurant data
                 query = "SELECT * FROM restaurant WHERE username = %s"
                 data = (session['username'],)
                 cursor.execute(query, data)
                 restaurant = cursor.fetchone()
+                
                 if restaurant:
-                    return render_template('restaurant/home.html', restaurant=restaurant)
+                    # Get date from query params or use today
+                    from datetime import datetime, date
+                    selected_date = request.args.get('date', date.today().isoformat())
+                    
+                    # Get reservations for this restaurant on selected date
+                    query = """
+                        SELECT r.*, c.username as client_name 
+                        FROM reservation r
+                        JOIN client c ON r.client_id = c.client_id
+                        WHERE r.restaurant_id = %s AND r.date = %s
+                    """
+                    cursor.execute(query, (restaurant['restaurant_id'], selected_date))
+                    all_reservations = cursor.fetchall()
+                    
+                    # Organize reservations by time slot
+                    reservations = {}
+                    for reservation in all_reservations:
+                        time_str = reservation['time'].strftime('%H:%M') if hasattr(reservation['time'], 'strftime') else str(reservation['time'])
+                        reservations[time_str] = reservation
+                    
+                    return render_template('restaurant/home.html', 
+                                          restaurant=restaurant,
+                                          reservations=reservations,
+                                          selected_date=selected_date)
                 else:
                     # Something went wrong with the session data
                     session.pop('username', None)

@@ -10,6 +10,45 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Fredoka+One&family=Righteous&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .reservation-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .reservation-table th, 
+        .reservation-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        .reservation-table th {
+            background-color: #f4f4f4;
+        }
+        
+        .time-slot {
+            font-weight: bold;
+            background-color: #f8f9fa;
+        }
+        
+        .reservation-cell {
+            background-color: rgba(25, 135, 84, 0.7);
+            color: white;
+            border-radius: 4px;
+        }
+        
+        .break-time {
+            background-color: #f8f9fa;
+            font-style: italic;
+            color: #6c757d;
+        }
+        
+        .date-selector {
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
     <div class="geo-shape geo-square"></div>
@@ -37,19 +76,134 @@
     <div class="container page-transition">
         <div class="row justify-content-center">
             <div class="col-md-10">
-                <h1 class="text-center mb-5">Tu Restaurante</h1>
+                <h1 class="text-center mb-4">{{ restaurant.restaurant_name }}</h1>
                 
-                <div class="restaurant-list">
-                    <div class="restaurant-item" {% if restaurant.image %}style="background-image: url('{{ url_for('static', filename='img/' + restaurant.image) }}'); background-size: cover; background-position: center;"{% endif %}>
-                        <div class="restaurant-content">
-                            <h3>{{ restaurant.restaurant_name }}</h3>
-                            <div class="mt-3">
-                                <a href="/restaurant/manage" class="btn button-pulse">
-                                    <i class="bi bi-gear"></i> Gestionar
-                                </a>
-                            </div>
+                <!-- Date selector -->
+                <div class="date-selector text-center">
+                    <form action="/restaurant" method="get" class="d-inline-block">
+                        <div class="input-group">
+                            <input type="date" name="date" class="form-control" value="{{ selected_date }}" required>
+                            <button type="submit" class="btn button-pulse">Ver reservas</button>
                         </div>
-                    </div>
+                    </form>
+                </div>
+                
+                <!-- Reservation table -->
+                <div class="table-responsive">
+                    <table class="reservation-table">
+                        <thead>
+                            <tr>
+                                <th>Hora</th>
+                                <th>Reservas</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Lunch time slots -->
+                            <tr>
+                                <td class="time-slot">13:00</td>
+                                <td class="{{ 'reservation-cell' if reservations.get('13:00') }}">
+                                    {% if reservations.get('13:00') %}
+                                        Cliente: {{ reservations.get('13:00').client_name }}<br>
+                                        Personas: {{ reservations.get('13:00').diners }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="time-slot">13:30</td>
+                                <td class="{{ 'reservation-cell' if reservations.get('13:30') or reservations.get('13:00') }}">
+                                    {% if reservations.get('13:30') and not reservations.get('13:00') %}
+                                        Cliente: {{ reservations.get('13:30').client_name }}<br>
+                                        Personas: {{ reservations.get('13:30').diners }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="time-slot">14:00</td>
+                                <td class="{{ 'reservation-cell' if reservations.get('14:00') or reservations.get('13:30') or reservations.get('13:00') }}">
+                                    {% if reservations.get('14:00') and not (reservations.get('13:30') or reservations.get('13:00')) %}
+                                        Cliente: {{ reservations.get('14:00').client_name }}<br>
+                                        Personas: {{ reservations.get('14:00').diners }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="time-slot">14:30</td>
+                                <td class="{{ 'reservation-cell' if reservations.get('14:30') or reservations.get('14:00') or reservations.get('13:30') or reservations.get('13:00') }}">
+                                    {% if reservations.get('14:30') and not (reservations.get('14:00') or reservations.get('13:30') or reservations.get('13:00')) %}
+                                        Cliente: {{ reservations.get('14:30').client_name }}<br>
+                                        Personas: {{ reservations.get('14:30').diners }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            
+                            <!-- Break time indicator -->
+                            <tr>
+                                <td colspan="2" class="break-time">Descanso</td>
+                            </tr>
+                            
+                            <!-- Dinner time slots -->
+                            <tr>
+                                <td class="time-slot">20:00</td>
+                                <td class="{{ 'reservation-cell' if reservations.get('20:00') }}">
+                                    {% if reservations.get('20:00') %}
+                                        Cliente: {{ reservations.get('20:00').client_name }}<br>
+                                        Personas: {{ reservations.get('20:00').diners }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="time-slot">20:30</td>
+                                <td class="{{ 'reservation-cell' if reservations.get('20:30') or reservations.get('20:00') }}">
+                                    {% if reservations.get('20:30') and not reservations.get('20:00') %}
+                                        Cliente: {{ reservations.get('20:30').client_name }}<br>
+                                        Personas: {{ reservations.get('20:30').diners }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="time-slot">21:00</td>
+                                <td class="{{ 'reservation-cell' if reservations.get('21:00') or reservations.get('20:30') or reservations.get('20:00') }}">
+                                    {% if reservations.get('21:00') and not (reservations.get('20:30') or reservations.get('20:00')) %}
+                                        Cliente: {{ reservations.get('21:00').client_name }}<br>
+                                        Personas: {{ reservations.get('21:00').diners }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="time-slot">21:30</td>
+                                <td class="{{ 'reservation-cell' if reservations.get('21:30') or reservations.get('21:00') or reservations.get('20:30') or reservations.get('20:00') }}">
+                                    {% if reservations.get('21:30') and not (reservations.get('21:00') or reservations.get('20:30') or reservations.get('20:00')) %}
+                                        Cliente: {{ reservations.get('21:30').client_name }}<br>
+                                        Personas: {{ reservations.get('21:30').diners }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="time-slot">22:00</td>
+                                <td class="{{ 'reservation-cell' if reservations.get('22:00') or reservations.get('21:30') or reservations.get('21:00') or reservations.get('20:30') }}">
+                                    {% if reservations.get('22:00') and not (reservations.get('21:30') or reservations.get('21:00') or reservations.get('20:30')) %}
+                                        Cliente: {{ reservations.get('22:00').client_name }}<br>
+                                        Personas: {{ reservations.get('22:00').diners }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="time-slot">22:30</td>
+                                <td class="{{ 'reservation-cell' if reservations.get('22:30') or reservations.get('22:00') or reservations.get('21:30') or reservations.get('21:00') }}">
+                                    {% if reservations.get('22:30') and not (reservations.get('22:00') or reservations.get('21:30') or reservations.get('21:00')) %}
+                                        Cliente: {{ reservations.get('22:30').client_name }}<br>
+                                        Personas: {{ reservations.get('22:30').diners }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="mt-4 text-center">
+                    <a href="/restaurant/manage" class="btn button-pulse">
+                        <i class="bi bi-gear"></i> Gestionar Restaurante
+                    </a>
                 </div>
             </div>
         </div>
