@@ -10,6 +10,87 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Fredoka+One&family=Righteous&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .reservation-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-bottom: 2rem;
+            table-layout: fixed;
+        }
+        
+        .reservation-table th, 
+        .reservation-table td {
+            border: 1px solid #ddd;
+            padding: 5px 2px;
+            text-align: center;
+            font-size: 0.8rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .reservation-table th {
+            background-color: #f4f4f4;
+        }
+        
+        .time-slot {
+            font-weight: bold;
+            background-color: #f8f9fa;
+            width: 60px;
+            min-width: 60px;
+            max-width: 60px;
+        }
+        
+        .seat-column {
+            width: calc(100% / {{ restaurant.capacity + 1 }});
+            min-width: 30px;
+        }
+        
+        .reservation-cell {
+            background-color: rgba(25, 135, 84, 0.7);
+            color: white;
+            border-radius: 4px;
+            white-space: normal;
+            font-size: 0.75rem;
+            line-height: 1.2;
+        }
+        
+        .reservation-pending {
+            background-color: rgba(255, 193, 7, 0.7);
+            color: #212529;
+        }
+        
+        .reservation-confirmed {
+            background-color: rgba(25, 135, 84, 0.7);
+            color: white;
+        }
+        
+        .break-time {
+            background-color: #f8f9fa;
+            font-style: italic;
+            color: #6c757d;
+        }
+        
+        .date-selector {
+            margin-bottom: 20px;
+        }
+        
+        .capacity-info {
+            margin-bottom: 15px;
+            font-style: italic;
+            color: #6c757d;
+        }
+
+        /* For very large capacities, add horizontal scroll but only when needed */
+        @media (max-width: 992px) {
+            .table-container {
+                overflow-x: auto;
+                max-width: 100%;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="geo-shape geo-square"></div>
@@ -36,20 +117,82 @@
 
     <div class="container page-transition">
         <div class="row justify-content-center">
-            <div class="col-md-10">
-                <h1 class="text-center mb-5">Tu Restaurante</h1>
+            <div class="col-md-12">
+                <h1 class="text-center mb-4">{{ restaurant.restaurant_name }}</h1>
                 
-                <div class="restaurant-list">
-                    <div class="restaurant-item" {% if restaurant.image %}style="background-image: url('{{ url_for('static', filename='img/' + restaurant.image) }}'); background-size: cover; background-position: center;"{% endif %}>
-                        <div class="restaurant-content">
-                            <h3>{{ restaurant.restaurant_name }}</h3>
-                            <div class="mt-3">
-                                <a href="/restaurant/manage" class="btn button-pulse">
-                                    <i class="bi bi-gear"></i> Gestionar
-                                </a>
-                            </div>
+                <!-- Date selector -->
+                <div class="date-selector text-center">
+                    <form action="/restaurant" method="get" class="d-inline-block">
+                        <div class="input-group">
+                            <input type="date" name="date" class="form-control" value="{{ selected_date }}" required>
+                            <button type="submit" class="btn button-pulse">Ver reservas</button>
                         </div>
+                    </form>
+                    <div class="mt-2">
+                        <a href="/restaurant/reservations/{{ selected_date }}" class="btn button-pulse">
+                            <i class="bi bi-list-ul"></i> Detalles de Reservas
+                        </a>
                     </div>
+                </div>
+                
+                <!-- Capacity info -->
+                <div class="capacity-info text-center">
+                    <p>Capacidad del restaurante: {{ restaurant.capacity }} personas</p>
+                </div>
+                
+                <!-- Reservation table - using an outer div for controlled overflow -->
+                <div class="table-container">
+                    <table class="reservation-table">
+                        <thead>
+                            <tr>
+                                <th class="time-slot">Hora</th>
+                                {% for i in range(restaurant.capacity) %}
+                                <th class="seat-column">{{ loop.index }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Lunch time slots -->
+                            {% for time_slot in time_slots %}
+                                {% if time_slot == "break" %}
+                                    <tr>
+                                        <td colspan="{{ restaurant.capacity + 1 }}" class="break-time">Descanso</td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td class="time-slot">{{ time_slot }}</td>
+                                        {% set ns = namespace(seats_occupied=0, current_res=None) %}
+                                        
+                                        {% for seat_index in range(restaurant.capacity) %}
+                                            {% if ns.seats_occupied > 0 %}
+                                                {% set ns.seats_occupied = ns.seats_occupied - 1 %}
+                                            {% elif seat_index < restaurant.capacity %}
+                                                {% set reservation = reservation_matrix.get(time_slot, {}).get(seat_index) %}
+                                                {% if reservation %}
+                                                    {% set ns.seats_occupied = reservation.diners - 1 %}
+                                                    {% set ns.current_res = reservation %}
+                                                    <td class="reservation-cell {{ 'reservation-pending' if reservation.status == 'pendiente' else 'reservation-confirmed' }}" colspan="{{ reservation.diners if reservation.diners <= (restaurant.capacity - seat_index) else (restaurant.capacity - seat_index) }}">
+                                                        {{ reservation.client_name }}<br>
+                                                        {{ reservation.diners }} personas
+                                                        <br>
+                                                        <small>{{ 'Pendiente' if reservation.status == 'pendiente' else 'Confirmada' }}</small>
+                                                    </td>
+                                                {% else %}
+                                                    <td></td>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="mt-4 text-center">
+                    <a href="/restaurant/manage" class="btn button-pulse">
+                        <i class="bi bi-gear"></i> Gestionar Restaurante
+                    </a>
                 </div>
             </div>
         </div>

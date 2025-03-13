@@ -74,6 +74,8 @@ def loginRest():
                     #guardar datos en session
                     session['username'] = username
                     session['user_type'] = 'restaurant'
+                    session['restaurant_id'] = user['restaurant_id']  # Añadir el ID del restaurante
+                    session['restaurant_name'] = user['restaurant_name']  # Añadir el nombre del restaurante
                     return redirect(url_for('restaurant'))
                 else:
                     return render_template("restaurant/login_restaurant.html", message="Usuario o contraseña incorrecta")
@@ -175,12 +177,144 @@ def restaurant():
         connection = db.get_connection()
         try:
             with connection.cursor() as cursor:
+                # Get restaurant data
                 query = "SELECT * FROM restaurant WHERE username = %s"
                 data = (session['username'],)
                 cursor.execute(query, data)
                 restaurant = cursor.fetchone()
+                
                 if restaurant:
-                    return render_template('restaurant/home.html', restaurant=restaurant)
+                    # Get date from query params or use today
+                    from datetime import datetime, date
+                    selected_date = request.args.get('date', date.today().isoformat())
+                    
+                    # Get reservations for this restaurant on selected date
+                    query = """
+                        SELECT r.*, c.username as client_name 
+                        FROM reservation r
+                        JOIN client c ON r.client_id = c.client_id
+                        WHERE r.restaurant_id = %s AND r.date = %s
+                    """
+                    cursor.execute(query, (restaurant['restaurant_id'], selected_date))
+                    all_reservations = cursor.fetchall()
+                    
+                    print(f"Found {len(all_reservations)} reservations for date {selected_date}")
+                    
+                    # Define time slots
+                    lunch_slots = ["13:00", "13:30", "14:00", "14:30", "15:00"]
+                    dinner_slots = ["20:00", "20:30", "21:00", "21:30", "22:00", "22:30", "23:00"]
+                    time_slots = lunch_slots + ["break"] + dinner_slots
+                    
+                    # Create a reservation matrix (time_slot -> seat_index -> reservation)
+                    reservation_matrix = {}
+                    
+                    for time_slot in time_slots:
+                        if time_slot != "break":
+                            reservation_matrix[time_slot] = {}
+                    
+                    # Create a mapping for time slot sequences (each reservation spans 4 slots)
+                    time_slot_mapping = {
+                        "13:00": ["13:00", "13:30", "14:00", "14:30"],
+                        "13:30": ["13:30", "14:00", "14:30", "15:00"],
+                        "14:00": ["14:00", "14:30", "15:00"],
+                        "14:30": ["14:30", "15:00"],
+                        "15:00": ["15:00"],
+                        "20:00": ["20:00", "20:30", "21:00", "21:30"],
+                        "20:30": ["20:30", "21:00", "21:30", "22:00"],
+                        "21:00": ["21:00", "21:30", "22:00", "22:30"],
+                        "21:30": ["21:30", "22:00", "22:30", "23:00"],
+                        "22:00": ["22:00", "22:30", "23:00"],
+                        "22:30": ["22:30", "23:00"],
+                        "23:00": ["23:00"]
+                    }
+                    
+                    # Improved algorithm for processing reservations to fit into the matrix
+                    # Sort reservations by time to ensure consistent placement
+                    from operator import itemgetter
+                    all_reservations = sorted(all_reservations, key=itemgetter('time'))
+                    
+                    for reservation in all_reservations:
+                        # Get status with a default value if it doesn't exist
+                        status = reservation.get('status', 'pendiente')
+                        
+                        if status != 'cancelada':  # Skip rejected/canceled reservations
+                            # Convert time to string format
+                            if hasattr(reservation['time'], 'strftime'):
+                                res_time = reservation['time'].strftime('%H:%M')
+                            else:
+                                # Handle potential different time formats
+                                time_str = str(reservation['time'])
+                                # Strip seconds if they exist
+                                if len(time_str) > 5:  # e.g. "13:00:00"
+                                    res_time = time_str[:5]
+                                else:
+                                    res_time = time_str
+                            
+                            print(f"Processing reservation at time: {res_time}")
+                            
+                            # Check if this time is in our defined slots
+                            if res_time in reservation_matrix:
+                                # Find first available seat index for this reservation
+                                found_spot = False
+                                
+                                # Improved algorithm: Find the highest occupied seat index
+                                # for all affected time slots to determine the next available seat
+                                affected_slots = time_slot_mapping.get(res_time, [res_time])
+                                start_seat = 0
+                                
+                                while start_seat < restaurant['capacity'] and not found_spot:
+                                    all_slots_available = True
+                                    max_occupied_seat = start_seat - 1  # Track the highest occupied seat
+                                    
+                                    for slot in affected_slots:
+                                        if slot not in reservation_matrix:
+                                            continue
+                                        
+                                        # Check if there's enough space in this time slot
+                                        for i in range(reservation['diners']):
+                                            seat_idx = start_seat + i
+                                            
+                                            if seat_idx >= restaurant['capacity']:
+                                                all_slots_available = False
+                                                break
+                                                
+                                            # If seat is occupied, find the furthest occupied seat
+                                            if seat_idx in reservation_matrix[slot]:
+                                                all_slots_available = False
+                                                
+                                                # Find the end of this existing reservation
+                                                existing_res = reservation_matrix[slot][seat_idx]
+                                                existing_end = seat_idx
+                                                
+                                                # Find the last seat of this existing reservation
+                                                for j in range(1, existing_res['diners']):
+                                                    if seat_idx + j in reservation_matrix[slot] and reservation_matrix[slot][seat_idx + j] == existing_res:
+                                                        existing_end = seat_idx + j
+                                                
+                                                # Update the max occupied seat if this one extends further
+                                                max_occupied_seat = max(max_occupied_seat, existing_end)
+                                                break
+                                        
+                                        if not all_slots_available:
+                                            break
+                                    
+                                    if all_slots_available:
+                                        # We found a spot! Reserve it in all affected time slots
+                                        for slot in affected_slots:
+                                            if slot in reservation_matrix:
+                                                # Mark all seats for this reservation
+                                                for i in range(reservation['diners']):
+                                                    reservation_matrix[slot][start_seat + i] = reservation
+                                        found_spot = True
+                                    else:
+                                        # Skip to after the furthest occupied seat
+                                        start_seat = max_occupied_seat + 1
+                    
+                    return render_template('restaurant/home.html', 
+                                          restaurant=restaurant,
+                                          time_slots=time_slots,
+                                          reservation_matrix=reservation_matrix,
+                                          selected_date=selected_date)
                 else:
                     # Something went wrong with the session data
                     session.pop('username', None)
@@ -239,7 +373,108 @@ def restaurant_details(restaurant_id):
     else:
         return redirect(url_for('home'))
         
+@app.route('/restaurant/reservations/<date>')
+def restaurant_reservations(date):
+    if 'username' in session and session.get('user_type') == 'restaurant':
+        connection = db.get_connection()
+        try:
+            with connection.cursor() as cursor:
+                # Get restaurant data
+                query = "SELECT * FROM restaurant WHERE username = %s"
+                data = (session['username'],)
+                cursor.execute(query, data)
+                restaurant = cursor.fetchone()
+                
+                if restaurant:
+                    # Get non-canceled reservations for this restaurant on selected date with client info
+                    query = """
+                        SELECT r.*, c.username as client_name 
+                        FROM reservation r
+                        JOIN client c ON r.client_id = c.client_id
+                        WHERE r.restaurant_id = %s AND r.date = %s AND (r.status != 'cancelada' OR r.status IS NULL)
+                        ORDER BY r.time
+                    """
+                    cursor.execute(query, (restaurant['restaurant_id'], date))
+                    reservations = cursor.fetchall()
+                    
+                    # Convert timedelta to string for display
+                    for reservation in reservations:
+                        if isinstance(reservation['time'], timedelta):
+                            reservation['time'] = str(reservation['time'])
+                    
+                    return render_template('restaurant/reservations.html', 
+                                          restaurant=restaurant,
+                                          reservations=reservations,
+                                          selected_date=date)
+                else:
+                    # Something went wrong with the session data
+                    session.pop('username', None)
+                    session.pop('user_type', None)
+                    return redirect(url_for('home'))
+        except Exception as e:
+            print("Ocurrió un error al conectar a la bbdd: ", e)
+            return render_template("home.html", message="Error de conexión a la base de datos")
+        finally:
+            connection.close()
+            print("Conexión cerrada")
+    else:
+        return redirect(url_for('login_pageRest'))
+
+@app.route('/restaurant/update_reservation_status', methods=['POST'])
+def update_reservation_status():
+    if 'username' in session and session.get('user_type') == 'restaurant':
+        reservation_id = int(request.form.get('reservation_id'))
+        # Map the status values from the form to the actual enum values in the database
+        action = request.form.get('status')
         
+        # Convert to the correct ENUM value
+        if action == 'confirm':
+            new_status = 'confirmada'
+        elif action == 'reject':
+            new_status = 'cancelada'
+        else:
+            new_status = 'pendiente'
+            
+        date = request.form.get('date')
+        
+        print(f"Updating reservation {reservation_id} to status {new_status}")
+        
+        connection = db.get_connection()
+        try:
+            with connection.cursor() as cursor:
+                # First verify this reservation belongs to the logged in restaurant
+                verify_query = """
+                    SELECT r.*, rest.username 
+                    FROM reservation r
+                    JOIN restaurant rest ON r.restaurant_id = rest.restaurant_id
+                    WHERE r.reservation_id = %s
+                """
+                cursor.execute(verify_query, (reservation_id,))
+                result = cursor.fetchone()
+                
+                print(f"Verification result: {result}")
+                
+                if result and result['username'] == session['username']:
+                    # Update the reservation status
+                    update_query = "UPDATE reservation SET status = %s WHERE reservation_id = %s"
+                    cursor.execute(update_query, (new_status, reservation_id))
+                    rows_affected = cursor.rowcount
+                    connection.commit()
+                    
+                    print(f"Status updated successfully to {new_status}. Rows affected: {rows_affected}")
+                    
+                    return redirect(url_for('restaurant_reservations', date=date))
+                else:
+                    return render_template("home.html", message="No tienes permiso para modificar esta reserva")
+        except Exception as e:
+            print(f"Ocurrió un error al actualizar la reserva: {e}")
+            return render_template("home.html", message=f"Error al actualizar la reserva: {e}")
+        finally:
+            connection.close()
+            print("Conexión cerrada")
+    else:
+        return redirect(url_for('login_pageRest'))
+
 @app.route('/booking/<int:restaurant_id>')
 def booking(restaurant_id):
     
@@ -273,13 +508,39 @@ def add_booking():
     conexion = db.get_connection()
     try:
         with conexion.cursor() as cursor:
-            #crear la consulta
-            consulta = "INSERT INTO reservation (restaurant_id,client_id,date,time,diners) VALUES (%s,%s,%s,%s,%s)"
-            datos = (restaurant_id,client_id,date,time,diners)
-            cursor.execute(consulta,datos)
-            conexion.commit()
+            # First check if status column exists
+            try:
+                #crear la consulta con status
+                consulta = "INSERT INTO reservation (restaurant_id,client_id,date,time,diners,status) VALUES (%s,%s,%s,%s,%s,'pending')"
+                datos = (restaurant_id,client_id,date,time,diners)
+                cursor.execute(consulta,datos)
+                conexion.commit()
+            except Exception as column_error:
+                print(f"Error with status column: {column_error}")
+                # Status column might not exist, try to add it
+                try:
+                    alter_query = "ALTER TABLE reservation ADD COLUMN status VARCHAR(20) DEFAULT 'pending'"
+                    cursor.execute(alter_query)
+                    conexion.commit()
+                    print("Added status column to reservation table")
+                    
+                    # Now try the insert again without status (it will use default)
+                    consulta = "INSERT INTO reservation (restaurant_id,client_id,date,time,diners) VALUES (%s,%s,%s,%s,%s)"
+                    datos = (restaurant_id,client_id,date,time,diners)
+                    cursor.execute(consulta,datos)
+                    conexion.commit()
+                except Exception as alter_error:
+                    print(f"Error adding status column: {alter_error}")
+                    # Try without status column as last resort
+                    consulta = "INSERT INTO reservation (restaurant_id,client_id,date,time,diners) VALUES (%s,%s,%s,%s,%s)"
+                    datos = (restaurant_id,client_id,date,time,diners)
+                    cursor.execute(consulta,datos)
+                    conexion.commit()
+            
+            return redirect(url_for('booking', restaurant_id=restaurant_id))
     except Exception as e:
-        print("Ocurrió un error al conectar a la bbdd: ", e)
+        print(f"Ocurrió un error al conectar a la bbdd: {e}")
+        return render_template("home.html", message=f"Error al crear la reserva: {e}")
     finally:
         conexion.close()
         print("Conexión cerrada")
@@ -395,6 +656,167 @@ def cancel_reservation(reservation_id):
         print("Error al cancelar reserva:", e)
         connection.rollback()
         return redirect(url_for('my_reservations'))
+    finally:
+        connection.close()
+
+@app.route('/restaurant/edit_profile')
+def edit_restaurant_profile():
+    # Verificar que el restaurante está logueado
+    if 'restaurant_id' not in session:
+        return redirect(url_for('login_pageRest'))
+    
+    restaurant_id = session['restaurant_id']
+    connection = db.get_connection()
+    
+    try:
+        with connection.cursor() as cursor:
+            # Obtener datos del restaurante
+            query = "SELECT * FROM restaurant WHERE restaurant_id = %s"
+            cursor.execute(query, (restaurant_id,))
+            restaurant = cursor.fetchone()
+            
+            if not restaurant:
+                return redirect(url_for('login_pageRest'))
+            
+            return render_template('restaurant/edit_profile.html', restaurant=restaurant)
+    except Exception as e:
+        print("Error al obtener datos del restaurante:", e)
+        return redirect(url_for('restauranthome'))
+    finally:
+        connection.close()
+
+@app.route('/restaurant/update_profile', methods=['POST'])
+def update_restaurant_profile():
+    # Verificar que el restaurante está logueado
+    if 'restaurant_id' not in session:
+        return redirect(url_for('login_pageRest'))
+    
+    restaurant_id = session['restaurant_id']
+    connection = db.get_connection()
+    
+    # Obtener datos del formulario (incluyendo nombre y dirección)
+    restaurant_name = request.form.get('restaurant_name')
+    address = request.form.get('address')
+    phone = request.form.get('phone')
+    website = request.form.get('website')
+    description = request.form.get('description')
+    current_password = request.form.get('current_password')
+    new_password = request.form.get('new_password')
+    confirm_password = request.form.get('confirm_password')
+    
+    # Procesar la URL para asegurar formato correcto
+    if website:
+        # Si la URL comienza con 'www.' y no tiene protocolo, agregarlo
+        if website.startswith('www.') and not website.startswith(('http://', 'https://')):
+            website = 'https://' + website
+        # Si no tiene www ni protocolo, agregar ambos
+        elif not website.startswith(('http://', 'https://', 'www.')):
+            website = 'https://www.' + website
+        # Si tiene www pero no protocolo
+        elif website.startswith('www.'):
+            website = 'https://' + website
+    
+    try:
+        with connection.cursor() as cursor:
+            # Obtener datos actuales del restaurante
+            query = "SELECT * FROM restaurant WHERE restaurant_id = %s"
+            cursor.execute(query, (restaurant_id,))
+            restaurant = cursor.fetchone()
+            
+            # Verificar contraseña actual
+            stored_password = restaurant['password']
+            
+            if not bcrypt.checkpw(current_password.encode('utf-8'), stored_password.encode('utf-8')):
+                return render_template(
+                    'restaurant/edit_profile.html',
+                    restaurant=restaurant,
+                    message="La contraseña actual no es correcta",
+                    message_type="danger"
+                )
+            
+            # Verificar si se quiere cambiar la contraseña
+            if new_password:
+                if new_password != confirm_password:
+                    return render_template(
+                        'restaurant/edit_profile.html',
+                        restaurant=restaurant,
+                        message="Las nuevas contraseñas no coinciden",
+                        message_type="danger"
+                    )
+                
+                # Encriptar nueva contraseña
+                hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+            else:
+                # Mantener la contraseña actual
+                hashed_password = stored_password
+            
+            # Manejar la imagen si se proporciona
+            image = request.files.get('image')
+            if image and image.filename:
+                # Importaciones necesarias para manejar archivos
+                from werkzeug.utils import secure_filename
+                import os
+                import time
+                
+                # Definir carpeta de subida si no está definida
+                if not hasattr(app, 'config') or 'UPLOAD_FOLDER' not in app.config:
+                    app.config['UPLOAD_FOLDER'] = 'static/img'
+                
+                # Asegurarse de que el nombre de archivo sea seguro
+                secure_filename_value = secure_filename(image.filename)
+                # Generar un nombre único basado en timestamp
+                timestamp = int(time.time())
+                filename = f"{timestamp}_{secure_filename_value}"
+                
+                # Asegurar que la carpeta existe
+                os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+                
+                # Guardar la imagen
+                image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                image.save(image_path)
+                image_name = filename
+            else:
+                # Mantener la imagen actual
+                image_name = restaurant['image']
+            
+            # Actualizar datos del restaurante (incluyendo nombre y dirección)
+            update_query = """
+            UPDATE restaurant 
+            SET restaurant_name = %s, address = %s, phone = %s, 
+                website = %s, description = %s, password = %s, 
+                image = %s
+            WHERE restaurant_id = %s
+            """
+            cursor.execute(update_query, (
+                restaurant_name, address, phone, website, 
+                description, hashed_password, image_name, 
+                restaurant_id
+            ))
+            connection.commit()
+            
+            # Actualizar el nombre del restaurante en la sesión
+            session['restaurant_name'] = restaurant_name
+            
+            # Obtener los datos actualizados para mostrar en el formulario
+            query = "SELECT * FROM restaurant WHERE restaurant_id = %s"
+            cursor.execute(query, (restaurant_id,))
+            updated_restaurant = cursor.fetchone()
+            
+            return render_template(
+                'restaurant/edit_profile.html',
+                restaurant=updated_restaurant,
+                message="Perfil actualizado correctamente",
+                message_type="success"
+            )
+    except Exception as e:
+        print("Error al actualizar perfil del restaurante:", e)
+        connection.rollback()
+        return render_template(
+            'restaurant/edit_profile.html',
+            restaurant=restaurant,
+            message=f"Error al actualizar el perfil: {str(e)}",
+            message_type="danger"
+        )
     finally:
         connection.close()
 

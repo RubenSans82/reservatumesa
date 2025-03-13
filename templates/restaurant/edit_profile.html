@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Perfil de Restaurante</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Fredoka+One&family=Righteous&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="geo-shape geo-square"></div>
+    <div class="geo-shape geo-rect"></div>
+    <div class="geo-shape geo-circle"></div>
+    <div class="geo-dots"></div>
+    <div class="geo-dots geo-dots-alt"></div>
+    
+    <!-- Logo in top left corner -->
+    <div class="logo-container">
+        <div class="logo-circle" style="transform: translateX(0) scale(1); opacity: 0.9; animation: none;"></div>
+        <div class="logo-text" style="transform: translateX(0); opacity: 1; animation: logo-bounce 5s ease-in-out infinite;">
+            <span>BOOK</span>
+            <span>EAT</span>
+        </div>
+    </div>
+
+    <!-- Back button in top right corner -->
+    <div class="back-container">
+        <a href="/restaurant" class="btn back-btn"><i class="bi bi-arrow-left"></i> Volver</a>
+    </div>
+
+    <div class="container page-transition">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="auth-container">
+                    <h1 class="text-center mb-4">Editar Perfil de Restaurante</h1>
+                    
+                    {% if message %}
+                        <div class="alert alert-{{ message_type if message_type else 'info' }} mt-3" role="alert">
+                            {{ message }}
+                        </div>
+                    {% endif %}
+                    
+                    <form action="/restaurant/update_profile" method="POST" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="restaurant_name" class="form-label">Nombre del Restaurante</label>
+                            <input type="text" class="form-control" id="restaurant_name" name="restaurant_name" value="{{ restaurant.restaurant_name }}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Dirección</label>
+                            <input type="text" class="form-control" id="address" name="address" value="{{ restaurant.address }}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Teléfono</label>
+                            <input type="tel" class="form-control" id="phone" name="phone" value="{{ restaurant.phone }}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="website" class="form-label">Sitio Web</label>
+                            <input type="text" class="form-control" id="website" name="website" value="{{ restaurant.website }}" placeholder="www.turestaurante.com">
+                            <small class="form-text text-muted">Puedes ingresar el sitio web con o sin el prefijo 'www.' o 'https://'</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Descripción</label>
+                            <textarea class="form-control" id="description" name="description" rows="4">{{ restaurant.description }}</textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="image" class="form-label">Imagen del Restaurante</label>
+                            
+                            {% if restaurant.image %}
+                                <div class="current-image mb-2">
+                                    <img src="{{ url_for('static', filename='img/' + restaurant.image) }}" alt="{{ restaurant.restaurant_name }}" class="img-thumbnail" style="max-width: 200px;">
+                                </div>
+                            {% endif %}
+                            
+                            <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                            <small class="form-text text-muted">Deja este campo vacío si no quieres cambiar la imagen actual.</small>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="current_password" class="form-label">Contraseña Actual (para confirmar cambios)</label>
+                            <input type="password" class="form-control" id="current_password" name="current_password" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="new_password" class="form-label">Nueva Contraseña</label>
+                            <input type="password" class="form-control" id="new_password" name="new_password">
+                            <small class="form-text text-muted">Deja este campo vacío si no quieres cambiar tu contraseña.</small>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="confirm_password" class="form-label">Confirmar Nueva Contraseña</label>
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password">
+                        </div>
+                        
+                        <div class="text-center">
+                            <button type="submit" class="btn button-pulse btn-lg">
+                                <i class="bi bi-save"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>
