@@ -82,11 +82,34 @@
         <div class="row justify-content-center">
             <div class="col-md-10">
                 <h1 class="text-center mb-4">Reservas de {{ restaurant.restaurant_name }}</h1>
+                
+                <!-- Add date selector similar to home page -->
+                <div class="date-selector text-center">
+                    <form action="/restaurant/reservations/" method="get" class="d-inline-block" id="date-form">
+                        <div class="input-group">
+                            <input type="date" name="date" class="form-control" value="{{ selected_date }}" required>
+                            <button type="button" class="btn button-pulse" onclick="navigateToDate()">Ver reservas</button>
+                        </div>
+                    </form>
+                    <script>
+                        function navigateToDate() {
+                            const dateInput = document.querySelector('input[name="date"]');
+                            const selectedDate = dateInput.value;
+                            if (selectedDate) {
+                                window.location.href = `/restaurant/reservations/${selectedDate}`;
+                            }
+                        }
+                    </script>
+                </div>
+                
                 <h3 class="text-center mb-4">Fecha: {{ selected_date }}</h3>
                 
                 <div class="text-center mb-4">
                     <a href="/restaurant?date={{ selected_date }}" class="btn button-pulse">
-                        <i class="bi bi-calendar3"></i> Volver a la Vista de Calendario
+                        <i class="bi bi-calendar3"></i> Ver Calendario
+                    </a>
+                    <a href="/restaurant/all_reservations" class="btn button-pulse">
+                        <i class="bi bi-list-check"></i> Ver Todas las Reservas
                     </a>
                 </div>
                 
@@ -152,8 +175,8 @@
                 {% endif %}
                 
                 <div class="mt-5 text-center">
-                    <a href="/restaurant" class="btn button-pulse">
-                        <i class="bi bi-house"></i> Volver al Dashboard
+                    <a href="/restaurant/all_reservations" class="btn button-pulse">
+                        <i class="bi bi-house"></i> Volver al Listado
                     </a>
                 </div>
             </div>

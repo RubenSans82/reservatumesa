@@ -74,7 +74,10 @@ def loginRest():
                     #guardar datos en session
                     session['username'] = username
                     session['user_type'] = 'restaurant'
-                    return redirect(url_for('restaurant'))
+                    # Redirecting to reservations page with today's date
+                    from datetime import date
+                    today = date.today().isoformat()
+                    return redirect(url_for('restaurant_reservations', date=today))
                 else:
                     return render_template("restaurant/login_restaurant.html", message="Usuario o contraseña incorrecta")
             else:
