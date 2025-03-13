@@ -62,7 +62,7 @@ def loginRest():
     connection = db.get_connection()
     try:
         with connection.cursor() as cursor:
-            #creamos la query - solo buscamos por username
+            #creamos la query - solo buscamos por usernamepollas
             query = "SELECT * FROM restaurant WHERE username = %s"
             data = (username,)
             cursor.execute(query, data)
