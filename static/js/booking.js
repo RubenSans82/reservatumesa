@@ -3,8 +3,21 @@ var restaurant = JSON.parse(document.getElementById('restaurant').textContent);
 var people = document.getElementById('people');
 var date = document.getElementById('date');
 
+min_date();
 people.addEventListener('change', checkTime);
 date.addEventListener('change', checkTime);
+
+function min_date() {
+    var dateInput = document.getElementById('date');
+    var today = new Date();
+    var tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+    var dd = String(tomorrow.getDate()).padStart(2, '0');
+    var mm = String(tomorrow.getMonth() + 1).padStart(2, '0'); // January is 0!
+    var yyyy = tomorrow.getFullYear();
+    var minDate = yyyy + '-' + mm + '-' + dd;
+    dateInput.setAttribute('min', minDate);
+}
 
 function checkTime() {
     var date_value = date.value;

@@ -213,6 +213,7 @@ def restaurant_details(restaurant_id):
         
 @app.route('/booking/<int:restaurant_id>')
 def booking(restaurant_id):
+    
     connnection = db.get_connection()
     with connnection.cursor() as cursor:
         consulta = "SELECT * FROM reservation WHERE restaurant_id = %s"
@@ -248,12 +249,14 @@ def add_booking():
             datos = (restaurant_id,client_id,date,time,diners)
             cursor.execute(consulta,datos)
             conexion.commit()
-            return redirect(url_for(''))
     except Exception as e:
         print("Ocurrió un error al conectar a la bbdd: ", e)
     finally:
         conexion.close()
         print("Conexión cerrada")
+        return redirect(url_for('user'))
+
+        
 
 @app.route('/logout')
 def logout():
