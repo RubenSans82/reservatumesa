@@ -197,10 +197,8 @@ def restaurant():
                     all_reservations = cursor.fetchall()
                     
                     print(f"Found {len(all_reservations)} reservations for date {selected_date}")
-                    for res in all_reservations:
-                        print(f"Reservation: {res}")
                     
-                    # Define time slots - Adding 15:00 and 23:00 time slots
+                    # Define time slots
                     lunch_slots = ["13:00", "13:30", "14:00", "14:30", "15:00"]
                     dinner_slots = ["20:00", "20:30", "21:00", "21:30", "22:00", "22:30", "23:00"]
                     time_slots = lunch_slots + ["break"] + dinner_slots
@@ -211,6 +209,22 @@ def restaurant():
                     for time_slot in time_slots:
                         if time_slot != "break":
                             reservation_matrix[time_slot] = {}
+                    
+                    # Create a mapping for time slot sequences (each reservation spans 4 slots)
+                    time_slot_mapping = {
+                        "13:00": ["13:00", "13:30", "14:00", "14:30"],
+                        "13:30": ["13:30", "14:00", "14:30", "15:00"],
+                        "14:00": ["14:00", "14:30", "15:00"],
+                        "14:30": ["14:30", "15:00"],
+                        "15:00": ["15:00"],
+                        "20:00": ["20:00", "20:30", "21:00", "21:30"],
+                        "20:30": ["20:30", "21:00", "21:30", "22:00"],
+                        "21:00": ["21:00", "21:30", "22:00", "22:30"],
+                        "21:30": ["21:30", "22:00", "22:30", "23:00"],
+                        "22:00": ["22:00", "22:30", "23:00"],
+                        "22:30": ["22:30", "23:00"],
+                        "23:00": ["23:00"]
+                    }
                     
                     # Process reservations to fit into the matrix
                     # Only show confirmed or pending reservations, not rejected ones
@@ -235,30 +249,41 @@ def restaurant():
                             
                             # Check if this time is in our defined slots
                             if res_time in reservation_matrix:
-                                # Find first available seat index
+                                # Find first available seat index for this reservation
                                 start_seat = 0
                                 found_spot = False
                                 
+                                # Check if we have room for this reservation
                                 while start_seat < restaurant['capacity'] and not found_spot:
-                                    if start_seat not in reservation_matrix[res_time]:
-                                        # Check if we have enough consecutive seats
-                                        can_fit = True
+                                    # Check all affected time slots for this reservation
+                                    all_slots_available = True
+                                    
+                                    for slot in time_slot_mapping.get(res_time, [res_time]):
+                                        # Skip slots outside our matrix (like after end of service)
+                                        if slot not in reservation_matrix:
+                                            continue
+                                            
+                                        # Check if there's enough space in this time slot
                                         for i in range(reservation['diners']):
-                                            if (start_seat + i) in reservation_matrix[res_time] or (start_seat + i) >= restaurant['capacity']:
-                                                can_fit = False
+                                            seat_idx = start_seat + i
+                                            if (seat_idx in reservation_matrix[slot] or 
+                                                seat_idx >= restaurant['capacity']):
+                                                all_slots_available = False
                                                 break
                                         
-                                        if can_fit:
-                                            # Reserve all needed seats
-                                            reservation_matrix[res_time][start_seat] = reservation
-                                            found_spot = True
+                                        if not all_slots_available:
                                             break
                                     
-                                    start_seat += 1
-                    
-                    for time_slot in time_slots:
-                        if time_slot != "break":
-                            print(f"Time slot {time_slot}: {reservation_matrix.get(time_slot, {})}")
+                                    if all_slots_available:
+                                        # We found a spot! Reserve it in all affected time slots
+                                        for slot in time_slot_mapping.get(res_time, [res_time]):
+                                            if slot in reservation_matrix:
+                                                reservation_matrix[slot][start_seat] = reservation
+                                        found_spot = True
+                                        break
+                                    else:
+                                        # Try next seat position
+                                        start_seat += 1
                     
                     return render_template('restaurant/home.html', 
                                           restaurant=restaurant,
@@ -384,7 +409,7 @@ def update_reservation_status():
             with connection.cursor() as cursor:
                 # First verify this reservation belongs to the logged in restaurant
                 verify_query = """
-                    SELECT r.*, rest.username
+                    SELECT r.*, rest.username 
                     FROM reservation r
                     JOIN restaurant rest ON r.restaurant_id = rest.restaurant_id
                     WHERE r.reservation_id = %s
@@ -395,38 +420,24 @@ def update_reservation_status():
                 print(f"Verification result: {result}")
                 
                 if result and result['username'] == session['username']:
-                    # First check if status column exists
+                    # Try to add the status column if it doesn't exist
                     try:
-                        # Try to get current status
-                        check_query = "SELECT status FROM reservation WHERE reservation_id = %s"
-                        cursor.execute(check_query, (reservation_id,))
-                        current_status = cursor.fetchone()
-                        print(f"Current status: {current_status}")
-                        
-                        # Update the reservation status
-                        update_query = "UPDATE reservation SET status = %s WHERE reservation_id = %s"
-                        cursor.execute(update_query, (new_status, reservation_id))
+                        cursor.execute("ALTER TABLE reservation ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'pending'")
                         connection.commit()
-                        print(f"Status updated successfully to {new_status}")
-                    except Exception as column_error:
-                        print(f"Error with status column: {column_error}")
-                        # Status column might not exist, try to add it
-                        try:
-                            alter_query = "ALTER TABLE reservation ADD COLUMN status VARCHAR(20) DEFAULT 'pending'"
-                            cursor.execute(alter_query)
-                            connection.commit()
-                            print("Added status column to reservation table")
-                            
-                            # Now try the update again
-                            update_query = "UPDATE reservation SET status = %s WHERE reservation_id = %s"
-                            cursor.execute(update_query, (new_status, reservation_id))
-                            connection.commit()
-                            print(f"Status updated successfully to {new_status} after adding column")
-                        except Exception as alter_error:
-                            print(f"Error adding status column: {alter_error}")
-                            return render_template("home.html", message="Error updating reservation status")
+                    except Exception as e:
+                        print(f"Error checking/adding status column: {e}")
+                        # Ignore error - column might already exist
+                        pass
                     
-                    # Return to the reservations page
+                    # Now update the reservation status
+                    update_query = "UPDATE reservation SET status = %s WHERE reservation_id = %s"
+                    cursor.execute(update_query, (new_status, reservation_id))
+                    rows_affected = cursor.rowcount
+                    connection.commit()
+                    
+                    print(f"Status updated successfully to {new_status}. Rows affected: {rows_affected}")
+                    
+                    # Return to the reservations page with success message
                     return redirect(url_for('restaurant_reservations', date=date))
                 else:
                     return render_template("home.html", message="No tienes permiso para modificar esta reserva")

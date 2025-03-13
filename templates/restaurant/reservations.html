@@ -119,7 +119,7 @@
                                     </td>
                                     <td class="action-buttons">
                                         {% if reservation.status != 'confirmed' %}
-                                        <form action="/restaurant/update_reservation_status" method="POST">
+                                        <form action="/restaurant/update_reservation_status" method="POST" onsubmit="return confirm('¿Confirmar esta reserva?')">
                                             <input type="hidden" name="reservation_id" value="{{ reservation.reservation_id }}">
                                             <input type="hidden" name="status" value="confirmed">
                                             <input type="hidden" name="date" value="{{ selected_date }}">
@@ -130,7 +130,7 @@
                                         {% endif %}
                                         
                                         {% if reservation.status != 'rejected' %}
-                                        <form action="/restaurant/update_reservation_status" method="POST">
+                                        <form action="/restaurant/update_reservation_status" method="POST" onsubmit="return confirm('¿Rechazar esta reserva?')">
                                             <input type="hidden" name="reservation_id" value="{{ reservation.reservation_id }}">
                                             <input type="hidden" name="status" value="rejected">
                                             <input type="hidden" name="date" value="{{ selected_date }}">
