@@ -76,7 +76,10 @@ def loginRest():
                     session['user_type'] = 'restaurant'
                     session['restaurant_id'] = user['restaurant_id']  # Añadir el ID del restaurante
                     session['restaurant_name'] = user['restaurant_name']  # Añadir el nombre del restaurante
-                    return redirect(url_for('restaurant'))
+                    # Redirecting to reservations page with today's date
+                    from datetime import date
+                    today = date.today().isoformat()
+                    return redirect(url_for('restaurant_reservations', date=today))
                 else:
                     return render_template("restaurant/login_restaurant.html", message="Usuario o contraseña incorrecta")
             else:
@@ -814,6 +817,138 @@ def update_restaurant_profile():
         return render_template(
             'restaurant/edit_profile.html',
             restaurant=restaurant,
+            message=f"Error al actualizar el perfil: {str(e)}",
+            message_type="danger"
+        )
+    finally:
+        connection.close()
+
+@app.route('/user/edit_profile')
+def edit_client_profile():
+    # Verificar que el cliente está logueado
+    if 'client_id' not in session:
+        return redirect(url_for('login_page'))
+    
+    client_id = session['client_id']
+    connection = db.get_connection()
+    
+    try:
+        with connection.cursor() as cursor:
+            # Obtener datos del cliente
+            query = "SELECT * FROM client WHERE client_id = %s"
+            cursor.execute(query, (client_id,))
+            client = cursor.fetchone()
+            
+            if not client:
+                return redirect(url_for('login_page'))
+            
+            return render_template('user/edit_profile.html', client=client)
+    except Exception as e:
+        print("Error al obtener datos del cliente:", e)
+        return redirect(url_for('userhome'))
+    finally:
+        connection.close()
+
+@app.route('/user/update_profile', methods=['POST'])
+def update_client_profile():
+    # Verificar que el cliente está logueado
+    if 'client_id' not in session:
+        return redirect(url_for('login_page'))
+    
+    client_id = session['client_id']
+    connection = db.get_connection()
+    
+    # Obtener datos del formulario (sin el campo name)
+    username = request.form.get('username')
+    phone = request.form.get('phone')
+    current_password = request.form.get('current_password')
+    new_password = request.form.get('new_password')
+    confirm_password = request.form.get('confirm_password')
+    
+    try:
+        with connection.cursor() as cursor:
+            # Verificar si el nombre de usuario existe para otro cliente
+            if username != session['username']:
+                query = "SELECT * FROM client WHERE username = %s AND client_id != %s"
+                cursor.execute(query, (username, client_id))
+                existing_user = cursor.fetchone()
+                
+                if existing_user:
+                    # Obtener los datos actuales para mostrar en el formulario
+                    query = "SELECT * FROM client WHERE client_id = %s"
+                    cursor.execute(query, (client_id,))
+                    client = cursor.fetchone()
+                    
+                    return render_template(
+                        'user/edit_profile.html',
+                        client=client,
+                        message="El nombre de usuario ya existe. Por favor, elige otro.",
+                        message_type="danger"
+                    )
+            
+            # Obtener datos actuales del cliente
+            query = "SELECT * FROM client WHERE client_id = %s"
+            cursor.execute(query, (client_id,))
+            client = cursor.fetchone()
+            
+            # Verificar contraseña actual
+            stored_password = client['password']
+            
+            if not bcrypt.checkpw(current_password.encode('utf-8'), stored_password.encode('utf-8')):
+                return render_template(
+                    'user/edit_profile.html',
+                    client=client,
+                    message="La contraseña actual no es correcta",
+                    message_type="danger"
+                )
+            
+            # Verificar si se quiere cambiar la contraseña
+            if new_password:
+                if new_password != confirm_password:
+                    return render_template(
+                        'user/edit_profile.html',
+                        client=client,
+                        message="Las nuevas contraseñas no coinciden",
+                        message_type="danger"
+                    )
+                
+                # Encriptar nueva contraseña
+                hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+            else:
+                # Mantener la contraseña actual
+                hashed_password = stored_password
+            
+            # Actualizar datos del cliente (sin el campo name)
+            update_query = """
+            UPDATE client 
+            SET username = %s, phone = %s, password = %s
+            WHERE client_id = %s
+            """
+            cursor.execute(update_query, (
+                username, phone, hashed_password, client_id
+            ))
+            connection.commit()
+            
+            # Actualizar el nombre de usuario en la sesión
+            session['username'] = username
+            
+            # Obtener los datos actualizados para mostrar en el formulario
+            query = "SELECT * FROM client WHERE client_id = %s"
+            cursor.execute(query, (client_id,))
+            updated_client = cursor.fetchone()
+            
+            return render_template(
+                'user/edit_profile.html',
+                client=updated_client,
+                message="Perfil actualizado correctamente",
+                message_type="success"
+            )
+    except Exception as e:
+        print("Error al actualizar perfil del cliente:", e)
+        connection.rollback()
+        return render_template(
+            'user/edit_profile.html',
+            client=client if 'client' in locals() else {'username': username, 'phone': phone},
             message=f"Error al actualizar el perfil: {str(e)}",
             message_type="danger"
         )
