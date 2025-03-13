@@ -196,12 +196,12 @@ def restaurant():
                     cursor.execute(query, (restaurant['restaurant_id'], selected_date))
                     all_reservations = cursor.fetchall()
                     
-                    # Define time slots
-                    lunch_slots = ["13:00", "13:30", "14:00", "14:30"]
-                    dinner_slots = ["20:00", "20:30", "21:00", "21:30", "22:00", "22:30"]
+                    # Define time slots - Adding 15:00 and 23:00 time slots
+                    lunch_slots = ["13:00", "13:30", "14:00", "14:30", "15:00"]
+                    dinner_slots = ["20:00", "20:30", "21:00", "21:30", "22:00", "22:30", "23:00"]
                     time_slots = lunch_slots + ["break"] + dinner_slots
                     
-                    # Create pollas a reservation matrix (time_slot -> seat_index -> reservation)
+                    # Create a reservation matrix (time_slot -> seat_index -> reservation)
                     reservation_matrix = {}
                     
                     for time_slot in time_slots:
@@ -243,12 +243,14 @@ def restaurant():
                         "13:30": ["13:30", "14:00", "14:30", "15:00"],
                         "14:00": ["14:00", "14:30", "15:00"],
                         "14:30": ["14:30", "15:00"],
+                        "15:00": ["15:00"],
                         "20:00": ["20:00", "20:30", "21:00", "21:30"],
                         "20:30": ["20:30", "21:00", "21:30", "22:00"],
                         "21:00": ["21:00", "21:30", "22:00", "22:30"],
                         "21:30": ["21:30", "22:00", "22:30", "23:00"],
                         "22:00": ["22:00", "22:30", "23:00"],
-                        "22:30": ["22:30", "23:00"]
+                        "22:30": ["22:30", "23:00"],
+                        "23:00": ["23:00"]
                     }
                     
                     return render_template('restaurant/home.html', 
