@@ -108,7 +108,6 @@
                     <a href="/restaurant?date={{ selected_date }}" class="btn button-pulse">
                         <i class="bi bi-calendar3"></i> Ver Calendario
                     </a>
-                   
                 </div>
                 
                 {% if reservations %}
@@ -172,7 +171,12 @@
                     </div>
                 {% endif %}
                 
-               
+                <!-- Add back the bottom navigation -->
+                <div class="mt-5 text-center">
+                    <a href="/restaurant" class="btn button-pulse">
+                        <i class="bi bi-house"></i> Volver al Calendario
+                    </a>
+                </div>
             </div>
         </div>
     </div>
