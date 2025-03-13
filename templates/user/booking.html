@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reserva</title>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" defer></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script id="bookings-data" type="application/json">{{ bookings | tojson }}</script>
     <script id="restaurant" type="application/json">{{ restaurant | tojson }}</script>
@@ -14,34 +15,61 @@
 </head>
 
 <body>
-    <div class="container">
-        <h1 class="mt-5">Reserva</h1>
-        <form action="/booking" method="post" class="mt-3">
-            <div class="form-group">
-                <label for="restaurant">Restaurante</label>
-                <p id="restaurant">{{ restaurant.restaurant_name }} </p>
-                <input type="hidden" name="restaurant" value="{{ restaurant.restaurant_id }}">
-                <input type="hidden" name="user" value="1">
-            </div>
-            <div class="form-group">
-                <label for="people">Personas</label>
-                <input type="number" name="people" id="people" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label for="date">Fecha</label>
-                <input type="date" name="date" id="date" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label for="time">Hora</label>
-                <select name="time" id="time" class="form-control" required>
-                </select>
-            </div>
-            <button type="submit" class="btn btn-primary">Reservar</button>
-        </form>
+    <div class="geo-shape geo-square"></div>
+    <div class="geo-shape geo-rect"></div>
+    <div class="geo-shape geo-circle"></div>
+    <div class="geo-dots"></div>
+    <div class="geo-dots geo-dots-alt"></div>
+
+    <!-- Logo in top left corner (without entry animation) -->
+    <div class="logo-container">
+        <div class="logo-circle" style="transform: translateX(0) scale(1); opacity: 0.9; animation: none;"></div>
+        <div class="logo-text"
+            style="transform: translateX(0); opacity: 1; animation: logo-bounce 5s ease-in-out infinite;">
+            <span>BOOK</span>
+            <span>EAT</span>
+        </div>
     </div>
 
+    <!-- Back button in top right corner -->
+    <div class="back-container">
+        <a href="/restaurant/{{ restaurant.restaurant_id }}" class="btn back-btn"><i class="bi bi-arrow-left"></i> Volver</a>
+    </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <div class="container page-transition">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <h1 class="text-center mb-4">Reserva</h1>
+                
+                <form action="/booking" method="post" class="mt-3">
+                    <div class="form-group">
+                        <label for="restaurant">Restaurante</label>
+                        <p id="restaurant">{{ restaurant.restaurant_name }} </p>
+                        <input type="hidden" name="restaurant" value="{{ restaurant.restaurant_id }}">
+                        <input type="hidden" name="user" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="people">Personas</label>
+                        <input type="number" name="people" id="people" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="date">Fecha</label>
+                        <input type="date" name="date" id="date" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="time">Hora</label>
+                        <select name="time" id="time" class="form-control" required>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Reservar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
 </body>
 
 </html>
