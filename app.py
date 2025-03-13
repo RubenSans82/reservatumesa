@@ -242,6 +242,7 @@ def restaurant_details(restaurant_id):
         
 @app.route('/booking/<int:restaurant_id>')
 def booking(restaurant_id):
+    
     connnection = db.get_connection()
     with connnection.cursor() as cursor:
         consulta = "SELECT * FROM reservation WHERE restaurant_id = %s"
