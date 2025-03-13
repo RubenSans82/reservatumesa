@@ -1,0 +1,4 @@
+Para hacer que Github deje de seguir el archivo __pycache__ qye ya estaba incluido en gitignore
+
+git rm --cached -r __pycache__/
+git commit -m "Dejar de rastrear archivos __pycache__"
