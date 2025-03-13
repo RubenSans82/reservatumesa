@@ -991,6 +991,7 @@ input.invalid, textarea.invalid {
     margin-top: 30px;
 }
 
+/* Ajuste de altura para las tarjetas de reservas */
 .restaurant-item {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 15px;
@@ -999,6 +1000,11 @@ input.invalid, textarea.invalid {
     transition: all 0.4s ease;
     border-left: 5px solid var(--accent-color);
     backdrop-filter: blur(5px);
+    position: relative;
+    padding-top: 35px; /* Aumentar el espacio superior para que quepa el badge */
+    display: flex;
+    flex-direction: column;
+    min-height: 350px; /* Mayor altura mínima para la tarjeta */
 }
 
 .restaurant-item:hover {
@@ -1015,6 +1021,13 @@ input.invalid, textarea.invalid {
     justify-content: space-between;
     align-items: center;
     min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    padding-bottom: 90px; /* Mayor espacio para los botones en la parte inferior */
+    flex-grow: 1;
+    min-height: 250px; /* Mayor altura mínima para el contenido */
 }
 
 .restaurant-content h3 {
@@ -1050,6 +1063,126 @@ input.invalid, textarea.invalid {
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.6); /* Stronger shadow */
     border: 2px solid white; /* White border for contrast */
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8); /* Text shadow for readability */
+}
+
+/* Mayor espaciado para los detalles de la reserva */
+.restaurant-item .reservation-details {
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 15px; /* Más padding interno */
+    border-radius: 8px;
+    margin: 15px 0 25px; /* Más espacio arriba y abajo */
+    width: 100%;
+    backdrop-filter: blur(3px);
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.restaurant-item .reservation-details p {
+    color: white;
+    margin-bottom: 5px;
+    font-size: 0.95rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.restaurant-item .reservation-details i {
+    color: var(--accent-color);
+    width: 20px;
+    display: inline-block;
+    text-align: center;
+    margin-right: 5px;
+}
+
+.restaurant-item .badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 0.85rem;
+    padding: 8px 12px;
+    border-radius: 20px;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+    position: static;
+}
+
+/* Ajuste de la posición de los botones */
+.restaurant-item .reservation-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+    width: 100%;
+    justify-content: center;
+    position: absolute;
+    bottom: 20px; /* Un poco más abajo para dar espacio */
+    left: 0;
+    width: 100%;
+    padding: 0 25px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.restaurant-item .reservation-actions .btn {
+    flex: 1;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+}
+
+/* Estilo para el badge de status en la parte superior */
+.restaurant-item .reservation-status {
+    position: absolute;
+    left: 50%;
+    top: 5px; /* Cambiar de -15px a 5px para que sea visible */
+    transform: translateX(-50%);
+    z-index: 10;
+    font-size: 0.9rem;
+    padding: 8px 16px;
+    border-radius: 20px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+    white-space: nowrap;
+}
+
+/* Encabezado para el nombre del restaurante */
+.restaurant-item .restaurant-header {
+    width: 100%;
+    text-align: center;
+    margin-top: 5px;
+    margin-bottom: 20px;
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 8px;
+    padding: 10px;
+    backdrop-filter: blur(2px);
+}
+
+.restaurant-item .restaurant-header h3 {
+    margin: 0;
+    font-size: 1.4rem;
+    padding: 0;
+    background-color: transparent; /* Fondo transparente para evitar acumulación de opacidad */
+    width: 100%;
+    text-align: center;
+}
+
+/* Regla general para h3 en restaurant-content (necesaria para los ítems en home.html) */
+.restaurant-content h3 {
+    color: white;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    margin-top: -10px;
+    font-weight: 700;
+    text-shadow: 
+        2px 2px 0 #000,
+        -2px 2px 0 #000,
+        2px -2px 0 #000,
+        -2px -2px 0 #000,
+        0px 2px 0 #000,
+        0px -2px 0 #000,
+        -2px 0px 0 #000,
+        2px 0px 0 #000,
+        4px 4px 6px rgba(0, 0, 0, 0.8);
+    width: 100%;
+    padding: 6px;
+    background-color: rgba(0, 0, 0, 0.4); /* Mantener solo para los h3 que no estén en .restaurant-header */
+    border-radius: 8px;
+    backdrop-filter: blur(2px);
 }
 
 /* Responsive adjustments for restaurant list */
@@ -1469,6 +1602,10 @@ input.invalid, textarea.invalid {
     transition: all 0.4s ease;
     border-left: 5px solid var(--accent-color);
     backdrop-filter: blur(5px);
+    position: relative;
+    padding-top: 35px; /* Aumentar el espacio superior para que quepa el badge */
+    display: flex;
+    flex-direction: column;
 }
 
 .restaurant-item:hover {
@@ -1485,6 +1622,12 @@ input.invalid, textarea.invalid {
     justify-content: space-between;
     align-items: center;
     min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    padding-bottom: 70px; /* Espacio para los botones */
+    flex-grow: 1;
 }
 
 .restaurant-content h3 {
@@ -1497,7 +1640,7 @@ input.invalid, textarea.invalid {
     text-shadow: 
         2px 2px 0 #000,
         -2px 2px 0 #000,
-        2px -2px 0 #000,
+         2px -2px 0 #000,
         -2px -2px 0 #000,
         0px 2px 0 #000,
         0px -2px 0 #000,
@@ -1520,6 +1663,124 @@ input.invalid, textarea.invalid {
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.6); /* Stronger shadow */
     border: 2px solid white; /* White border for contrast */
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8); /* Text shadow for readability */
+}
+
+/* Reservation styling in restaurant items */
+.restaurant-item .reservation-details {
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 10px;
+    border-radius: 8px;
+    margin: 10px 0;
+    width: 100%;
+    backdrop-filter: blur(3px);
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.restaurant-item .reservation-details p {
+    color: white;
+    margin-bottom: 5px;
+    font-size: 0.95rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.restaurant-item .reservation-details i {
+    color: var(--accent-color);
+    width: 20px;
+    display: inline-block;
+    text-align: center;
+    margin-right: 5px;
+}
+
+.restaurant-item .badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 0.85rem;
+    padding: 8px 12px;
+    border-radius: 20px;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+    position: static;
+}
+
+.restaurant-item .reservation-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+    width: 100%;
+    justify-content: center;
+    position: absolute;
+    bottom: 15px;
+    left: 0;
+    width: 100%;
+    padding: 0 25px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.restaurant-item .reservation-actions .btn {
+    flex: 1;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+}
+
+/* Estilo para el badge de status en la parte superior */
+.restaurant-item .reservation-status {
+    position: absolute;
+    left: 50%;
+    top: 5px; /* Cambiar de -15px a 5px para que sea visible */
+    transform: translateX(-50%);
+    z-index: 10;
+    font-size: 0.9rem;
+    padding: 8px 16px;
+    border-radius: 20px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+    white-space: nowrap;
+}
+
+/* Encabezado para el nombre del restaurante */
+.restaurant-item .restaurant-header {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 15px;
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 8px;
+    padding: 10px;
+    backdrop-filter: blur(2px);
+}
+
+.restaurant-item .restaurant-header h3 {
+    margin: 0;
+    font-size: 1.4rem;
+    padding: 0;
+    background-color: transparent; /* Fondo transparente para evitar acumulación de opacidad */
+    width: 100%;
+    text-align: center;
+}
+
+/* Regla general para h3 en restaurant-content (necesaria para los ítems en home.html) */
+.restaurant-content h3 {
+    color: white;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    margin-top: -10px;
+    font-weight: 700;
+    text-shadow: 
+        2px 2px 0 #000,
+        -2px 2px 0 #000,
+        2px -2px 0 #000,
+        -2px -2px 0 #000,
+        0px 2px 0 #000,
+        0px -2px 0 #000,
+        -2px 0px 0 #000,
+        2px 0px 0 #000,
+        4px 4px 6px rgba(0, 0, 0, 0.8);
+    width: 100%;
+    padding: 6px;
+    background-color: rgba(0, 0, 0, 0.4); /* Mantener solo para los h3 que no estén en .restaurant-header */
+    border-radius: 8px;
+    backdrop-filter: blur(2px);
 }
 
 /* Responsive adjustments for restaurant list */
