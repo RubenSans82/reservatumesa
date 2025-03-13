@@ -192,10 +192,13 @@ def restaurant():
                         FROM reservation r
                         JOIN client c ON r.client_id = c.client_id
                         WHERE r.restaurant_id = %s AND r.date = %s
-                        ORDER BY r.time
                     """
                     cursor.execute(query, (restaurant['restaurant_id'], selected_date))
                     all_reservations = cursor.fetchall()
+                    
+                    print(f"Found {len(all_reservations)} reservations for date {selected_date}")
+                    for res in all_reservations:
+                        print(f"Reservation: {res}")
                     
                     # Define time slots - Adding 15:00 and 23:00 time slots
                     lunch_slots = ["13:00", "13:30", "14:00", "14:30", "15:00"]
@@ -212,9 +215,23 @@ def restaurant():
                     # Process reservations to fit into the matrix
                     # Only show confirmed or pending reservations, not rejected ones
                     for reservation in all_reservations:
-                        if reservation.get('status') != 'rejected':  # Skip rejected reservations
+                        # Get status with a default value if it doesn't exist
+                        status = reservation.get('status', 'pending')
+                        
+                        if status != 'rejected':  # Skip rejected reservations
                             # Convert time to string format
-                            res_time = reservation['time'].strftime('%H:%M') if hasattr(reservation['time'], 'strftime') else str(reservation['time'])
+                            if hasattr(reservation['time'], 'strftime'):
+                                res_time = reservation['time'].strftime('%H:%M')
+                            else:
+                                # Handle potential different time formats
+                                time_str = str(reservation['time'])
+                                # Strip seconds if they exist
+                                if len(time_str) > 5:  # e.g. "13:00:00"
+                                    res_time = time_str[:5]
+                                else:
+                                    res_time = time_str
+                            
+                            print(f"Processing reservation at time: {res_time}")
                             
                             # Check if this time is in our defined slots
                             if res_time in reservation_matrix:
@@ -239,8 +256,9 @@ def restaurant():
                                     
                                     start_seat += 1
                     
-                    # Debug print to check the reservation matrix content
-                    print("Reservation matrix:", reservation_matrix)
+                    for time_slot in time_slots:
+                        if time_slot != "break":
+                            print(f"Time slot {time_slot}: {reservation_matrix.get(time_slot, {})}")
                     
                     return render_template('restaurant/home.html', 
                                           restaurant=restaurant,
@@ -359,12 +377,14 @@ def update_reservation_status():
         new_status = request.form.get('status')
         date = request.form.get('date')
         
+        print(f"Updating reservation {reservation_id} to status {new_status}")
+        
         connection = db.get_connection()
         try:
             with connection.cursor() as cursor:
                 # First verify this reservation belongs to the logged in restaurant
                 verify_query = """
-                    SELECT r.restaurant_id, rest.username
+                    SELECT r.*, rest.username
                     FROM reservation r
                     JOIN restaurant rest ON r.restaurant_id = rest.restaurant_id
                     WHERE r.reservation_id = %s
@@ -372,21 +392,50 @@ def update_reservation_status():
                 cursor.execute(verify_query, (reservation_id,))
                 result = cursor.fetchone()
                 
+                print(f"Verification result: {result}")
+                
                 if result and result['username'] == session['username']:
-                    # Update the reservation status
-                    update_query = "UPDATE reservation SET status = %s WHERE reservation_id = %s"
-                    cursor.execute(update_query, (new_status, reservation_id))
-                    connection.commit()
+                    # First check if status column exists
+                    try:
+                        # Try to get current status
+                        check_query = "SELECT status FROM reservation WHERE reservation_id = %s"
+                        cursor.execute(check_query, (reservation_id,))
+                        current_status = cursor.fetchone()
+                        print(f"Current status: {current_status}")
+                        
+                        # Update the reservation status
+                        update_query = "UPDATE reservation SET status = %s WHERE reservation_id = %s"
+                        cursor.execute(update_query, (new_status, reservation_id))
+                        connection.commit()
+                        print(f"Status updated successfully to {new_status}")
+                    except Exception as column_error:
+                        print(f"Error with status column: {column_error}")
+                        # Status column might not exist, try to add it
+                        try:
+                            alter_query = "ALTER TABLE reservation ADD COLUMN status VARCHAR(20) DEFAULT 'pending'"
+                            cursor.execute(alter_query)
+                            connection.commit()
+                            print("Added status column to reservation table")
+                            
+                            # Now try the update again
+                            update_query = "UPDATE reservation SET status = %s WHERE reservation_id = %s"
+                            cursor.execute(update_query, (new_status, reservation_id))
+                            connection.commit()
+                            print(f"Status updated successfully to {new_status} after adding column")
+                        except Exception as alter_error:
+                            print(f"Error adding status column: {alter_error}")
+                            return render_template("home.html", message="Error updating reservation status")
                     
                     # Return to the reservations page
                     return redirect(url_for('restaurant_reservations', date=date))
                 else:
                     return render_template("home.html", message="No tienes permiso para modificar esta reserva")
         except Exception as e:
-            print("Ocurrió un error al actualizar la reserva: ", e)
-            return render_template("home.html", message="Error al actualizar la reserva")
+            print(f"Ocurrió un error al actualizar la reserva: {e}")
+            return render_template("home.html", message=f"Error al actualizar la reserva: {e}")
         finally:
             connection.close()
+            print("Conexión cerrada")
     else:
         return redirect(url_for('login_pageRest'))
 
@@ -422,14 +471,39 @@ def add_booking():
     conexion = db.get_connection()
     try:
         with conexion.cursor() as cursor:
-            #crear la consulta - añadiendo status='pending' por defecto
-            consulta = "INSERT INTO reservation (restaurant_id,client_id,date,time,diners,status) VALUES (%s,%s,%s,%s,%s,'pending')"
-            datos = (restaurant_id,client_id,date,time,diners)
-            cursor.execute(consulta,datos)
-            conexion.commit()
-            return redirect(url_for(''))
+            # First check if status column exists
+            try:
+                #crear la consulta con status
+                consulta = "INSERT INTO reservation (restaurant_id,client_id,date,time,diners,status) VALUES (%s,%s,%s,%s,%s,'pending')"
+                datos = (restaurant_id,client_id,date,time,diners)
+                cursor.execute(consulta,datos)
+                conexion.commit()
+            except Exception as column_error:
+                print(f"Error with status column: {column_error}")
+                # Status column might not exist, try to add it
+                try:
+                    alter_query = "ALTER TABLE reservation ADD COLUMN status VARCHAR(20) DEFAULT 'pending'"
+                    cursor.execute(alter_query)
+                    conexion.commit()
+                    print("Added status column to reservation table")
+                    
+                    # Now try the insert again without status (it will use default)
+                    consulta = "INSERT INTO reservation (restaurant_id,client_id,date,time,diners) VALUES (%s,%s,%s,%s,%s)"
+                    datos = (restaurant_id,client_id,date,time,diners)
+                    cursor.execute(consulta,datos)
+                    conexion.commit()
+                except Exception as alter_error:
+                    print(f"Error adding status column: {alter_error}")
+                    # Try without status column as last resort
+                    consulta = "INSERT INTO reservation (restaurant_id,client_id,date,time,diners) VALUES (%s,%s,%s,%s,%s)"
+                    datos = (restaurant_id,client_id,date,time,diners)
+                    cursor.execute(consulta,datos)
+                    conexion.commit()
+            
+            return redirect(url_for('booking', restaurant_id=restaurant_id))
     except Exception as e:
-        print("Ocurrió un error al conectar a la bbdd: ", e)
+        print(f"Ocurrió un error al conectar a la bbdd: {e}")
+        return render_template("home.html", message=f"Error al crear la reserva: {e}")
     finally:
         conexion.close()
         print("Conexión cerrada")
