@@ -196,15 +196,65 @@ def restaurant():
                     cursor.execute(query, (restaurant['restaurant_id'], selected_date))
                     all_reservations = cursor.fetchall()
                     
-                    # Organize reservations by time slot
-                    reservations = {}
+                    # Define time slots
+                    lunch_slots = ["13:00", "13:30", "14:00", "14:30"]
+                    dinner_slots = ["20:00", "20:30", "21:00", "21:30", "22:00", "22:30"]
+                    time_slots = lunch_slots + ["break"] + dinner_slots
+                    
+                    # Create pollas a reservation matrix (time_slot -> seat_index -> reservation)
+                    reservation_matrix = {}
+                    
+                    for time_slot in time_slots:
+                        if time_slot != "break":
+                            reservation_matrix[time_slot] = {}
+                    
+                    # Process reservations to fit into the matrix
                     for reservation in all_reservations:
-                        time_str = reservation['time'].strftime('%H:%M') if hasattr(reservation['time'], 'strftime') else str(reservation['time'])
-                        reservations[time_str] = reservation
+                        # Convert time to string format
+                        res_time = reservation['time'].strftime('%H:%M') if hasattr(reservation['time'], 'strftime') else str(reservation['time'])
+                        
+                        # Check if this time is in our defined slots
+                        if res_time in reservation_matrix:
+                            # Find first available seat index
+                            start_seat = 0
+                            found_spot = False
+                            
+                            while start_seat < restaurant['capacity'] and not found_spot:
+                                if start_seat not in reservation_matrix[res_time]:
+                                    # Check if we have enough consecutive seats
+                                    can_fit = True
+                                    for i in range(reservation['diners']):
+                                        if (start_seat + i) in reservation_matrix[res_time] or (start_seat + i) >= restaurant['capacity']:
+                                            can_fit = False
+                                            break
+                                    
+                                    if can_fit:
+                                        # Reserve all needed seats
+                                        reservation_matrix[res_time][start_seat] = reservation
+                                        found_spot = True
+                                        break
+                                
+                                start_seat += 1
+                    
+                    # Mark reservations in the following time slots based on 2-hour duration
+                    # Maps each time slot to slots that should be blocked if there's a reservation
+                    time_slot_blocks = {
+                        "13:00": ["13:00", "13:30", "14:00", "14:30"],
+                        "13:30": ["13:30", "14:00", "14:30", "15:00"],
+                        "14:00": ["14:00", "14:30", "15:00"],
+                        "14:30": ["14:30", "15:00"],
+                        "20:00": ["20:00", "20:30", "21:00", "21:30"],
+                        "20:30": ["20:30", "21:00", "21:30", "22:00"],
+                        "21:00": ["21:00", "21:30", "22:00", "22:30"],
+                        "21:30": ["21:30", "22:00", "22:30", "23:00"],
+                        "22:00": ["22:00", "22:30", "23:00"],
+                        "22:30": ["22:30", "23:00"]
+                    }
                     
                     return render_template('restaurant/home.html', 
                                           restaurant=restaurant,
-                                          reservations=reservations,
+                                          time_slots=time_slots,
+                                          reservation_matrix=reservation_matrix,
                                           selected_date=selected_date)
                 else:
                     # Something went wrong with the session data
