@@ -361,12 +361,12 @@ def restaurant_reservations(date):
                 restaurant = cursor.fetchone()
                 
                 if restaurant:
-                    # Get reservations for this restaurant on selected date with client info
+                    # Get non-canceled reservations for this restaurant on selected date with client info
                     query = """
                         SELECT r.*, c.username as client_name 
                         FROM reservation r
                         JOIN client c ON r.client_id = c.client_id
-                        WHERE r.restaurant_id = %s AND r.date = %s
+                        WHERE r.restaurant_id = %s AND r.date = %s AND (r.status != 'cancelada' OR r.status IS NULL)
                         ORDER BY r.time
                     """
                     cursor.execute(query, (restaurant['restaurant_id'], date))
