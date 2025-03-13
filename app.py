@@ -277,17 +277,125 @@ def add_booking():
             datos = (restaurant_id,client_id,date,time,diners)
             cursor.execute(consulta,datos)
             conexion.commit()
-            return redirect(url_for(''))
     except Exception as e:
         print("Ocurrió un error al conectar a la bbdd: ", e)
     finally:
         conexion.close()
         print("Conexión cerrada")
+        return redirect(url_for('userhome'))
 
 @app.route('/logout')
 def logout():
     session.pop('username', None)
     return redirect(url_for('home'))
 
+@app.route('/my_reservations')
+def my_reservations():
+    print("DEBUG: Entrando a my_reservations")  # Para debug
+    # Verificar si el usuario está logueado
+    if 'username' not in session or 'client_id' not in session:
+        return redirect(url_for('login_page'))
+    
+    client_id = session['client_id']
+    connection = db.get_connection()
+    
+    try:
+        with connection.cursor() as cursor:
+            # Obtener todas las reservas del usuario con detalles del restaurante
+            query = """
+            SELECT r.*, rest.restaurant_name, rest.address, rest.image 
+            FROM reservation r 
+            JOIN restaurant rest ON r.restaurant_id = rest.restaurant_id 
+            WHERE r.client_id = %s
+            ORDER BY r.date, r.time
+            """
+            cursor.execute(query, (client_id,))
+            reservations = cursor.fetchall()
+            
+            # Asegúrate de que la siguiente línea de código esté presente:
+            print("Finalizando my_reservations")
+            return render_template('user/my_reservations.html', 
+                                  reservations=reservations, 
+                                  username=session['username'])
+    except Exception as e:
+        print("Error al obtener reservas:", e)
+        return render_template('user/my_reservations.html', 
+                              message="Error al cargar tus reservas", 
+                              reservations=[])
+    finally:
+        connection.close()
+
+@app.route('/update_reservation/<int:reservation_id>', methods=['POST'])
+def update_reservation(reservation_id):
+    # Verificar si el usuario está logueado
+    if 'username' not in session or 'client_id' not in session:
+        return redirect(url_for('login_page'))
+    
+    client_id = session['client_id']
+    diners = request.form.get('diners')
+    date = request.form.get('date')
+    time = request.form.get('time')
+    
+    connection = db.get_connection()
+    
+    try:
+        with connection.cursor() as cursor:
+            # Verificar que la reserva pertenece al usuario
+            check_query = "SELECT * FROM reservation WHERE reservation_id = %s AND client_id = %s"
+            cursor.execute(check_query, (reservation_id, client_id))
+            reservation = cursor.fetchone()
+            
+            if not reservation:
+                return redirect(url_for('my_reservations'))
+            
+            # Actualizar la reserva
+            update_query = """
+            UPDATE reservation 
+            SET diners = %s, date = %s, time = %s
+            WHERE reservation_id = %s AND client_id = %s
+            """
+            cursor.execute(update_query, (diners, date, time, reservation_id, client_id))
+            connection.commit()
+            
+            return redirect(url_for('my_reservations'))
+    except Exception as e:
+        print("Error al actualizar reserva:", e)
+        connection.rollback()
+        return redirect(url_for('my_reservations'))
+    finally:
+        connection.close()
+
+@app.route('/cancel_reservation/<int:reservation_id>', methods=['POST'])
+def cancel_reservation(reservation_id):
+    # Verificar si el usuario está logueado
+    if 'username' not in session or 'client_id' not in session:
+        return redirect(url_for('login_page'))
+    
+    client_id = session['client_id']
+    connection = db.get_connection()
+    
+    try:
+        with connection.cursor() as cursor:
+            # Verificar que la reserva pertenece al usuario
+            check_query = "SELECT * FROM reservation WHERE reservation_id = %s AND client_id = %s"
+            cursor.execute(check_query, (reservation_id, client_id))
+            reservation = cursor.fetchone()
+            
+            if not reservation:
+                return redirect(url_for('my_reservations'))
+            
+            # Eliminar la reserva
+            delete_query = "DELETE FROM reservation WHERE reservation_id = %s AND client_id = %s"
+            cursor.execute(delete_query, (reservation_id, client_id))
+            connection.commit()
+            
+            return redirect(url_for('my_reservations'))
+    except Exception as e:
+        print("Error al cancelar reserva:", e)
+        connection.rollback()
+        return redirect(url_for('my_reservations'))
+    finally:
+        connection.close()
+
 if __name__ == '__main__':
-    app.run(debug=True,port=80)
+    app.run(debug=True, port=80)
