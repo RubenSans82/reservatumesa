@@ -192,6 +192,7 @@ def restaurant():
                         FROM reservation r
                         JOIN client c ON r.client_id = c.client_id
                         WHERE r.restaurant_id = %s AND r.date = %s
+                        ORDER BY r.time
                     """
                     cursor.execute(query, (restaurant['restaurant_id'], selected_date))
                     all_reservations = cursor.fetchall()
@@ -209,49 +210,37 @@ def restaurant():
                             reservation_matrix[time_slot] = {}
                     
                     # Process reservations to fit into the matrix
+                    # Only show confirmed or pending reservations, not rejected ones
                     for reservation in all_reservations:
-                        # Convert time to string format
-                        res_time = reservation['time'].strftime('%H:%M') if hasattr(reservation['time'], 'strftime') else str(reservation['time'])
-                        
-                        # Check if this time is in our defined slots
-                        if res_time in reservation_matrix:
-                            # Find first available seat index
-                            start_seat = 0
-                            found_spot = False
+                        if reservation.get('status') != 'rejected':  # Skip rejected reservations
+                            # Convert time to string format
+                            res_time = reservation['time'].strftime('%H:%M') if hasattr(reservation['time'], 'strftime') else str(reservation['time'])
                             
-                            while start_seat < restaurant['capacity'] and not found_spot:
-                                if start_seat not in reservation_matrix[res_time]:
-                                    # Check if we have enough consecutive seats
-                                    can_fit = True
-                                    for i in range(reservation['diners']):
-                                        if (start_seat + i) in reservation_matrix[res_time] or (start_seat + i) >= restaurant['capacity']:
-                                            can_fit = False
+                            # Check if this time is in our defined slots
+                            if res_time in reservation_matrix:
+                                # Find first available seat index
+                                start_seat = 0
+                                found_spot = False
+                                
+                                while start_seat < restaurant['capacity'] and not found_spot:
+                                    if start_seat not in reservation_matrix[res_time]:
+                                        # Check if we have enough consecutive seats
+                                        can_fit = True
+                                        for i in range(reservation['diners']):
+                                            if (start_seat + i) in reservation_matrix[res_time] or (start_seat + i) >= restaurant['capacity']:
+                                                can_fit = False
+                                                break
+                                        
+                                        if can_fit:
+                                            # Reserve all needed seats
+                                            reservation_matrix[res_time][start_seat] = reservation
+                                            found_spot = True
                                             break
                                     
-                                    if can_fit:
-                                        # Reserve all needed seats
-                                        reservation_matrix[res_time][start_seat] = reservation
-                                        found_spot = True
-                                        break
-                                
-                                start_seat += 1
+                                    start_seat += 1
                     
-                    # Mark reservations in the following time slots based on 2-hour duration
-                    # Maps each time slot to slots that should be blocked if there's a reservation
-                    time_slot_blocks = {
-                        "13:00": ["13:00", "13:30", "14:00", "14:30"],
-                        "13:30": ["13:30", "14:00", "14:30", "15:00"],
-                        "14:00": ["14:00", "14:30", "15:00"],
-                        "14:30": ["14:30", "15:00"],
-                        "15:00": ["15:00"],
-                        "20:00": ["20:00", "20:30", "21:00", "21:30"],
-                        "20:30": ["20:30", "21:00", "21:30", "22:00"],
-                        "21:00": ["21:00", "21:30", "22:00", "22:30"],
-                        "21:30": ["21:30", "22:00", "22:30", "23:00"],
-                        "22:00": ["22:00", "22:30", "23:00"],
-                        "22:30": ["22:30", "23:00"],
-                        "23:00": ["23:00"]
-                    }
+                    # Debug print to check the reservation matrix content
+                    print("Reservation matrix:", reservation_matrix)
                     
                     return render_template('restaurant/home.html', 
                                           restaurant=restaurant,
@@ -433,8 +422,8 @@ def add_booking():
     conexion = db.get_connection()
     try:
         with conexion.cursor() as cursor:
-            #crear la consulta
-            consulta = "INSERT INTO reservation (restaurant_id,client_id,date,time,diners) VALUES (%s,%s,%s,%s,%s)"
+            #crear la consulta - añadiendo status='pending' por defecto
+            consulta = "INSERT INTO reservation (restaurant_id,client_id,date,time,diners,status) VALUES (%s,%s,%s,%s,%s,'pending')"
             datos = (restaurant_id,client_id,date,time,diners)
             cursor.execute(consulta,datos)
             conexion.commit()
