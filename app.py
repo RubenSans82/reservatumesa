@@ -170,7 +170,36 @@ def user():
 
 @app.route('/restaurant')
 def restaurant():
-    return render_template('restaurant/home.html')
+    if 'username' in session and session.get('user_type') == 'restaurant':
+        # Get the logged in restaurant information
+        connection = db.get_connection()
+        try:
+            with connection.cursor() as cursor:
+                query = "SELECT * FROM restaurant WHERE username = %s"
+                data = (session['username'],)
+                cursor.execute(query, data)
+                restaurant = cursor.fetchone()
+                if restaurant:
+                    return render_template('restaurant/home.html', restaurant=restaurant)
+                else:
+                    # Something went wrong with the session data
+                    session.pop('username', None)
+                    session.pop('user_type', None)
+                    return redirect(url_for('home'))
+        except Exception as e:
+            print("Ocurrió un error al conectar a la bbdd: ", e)
+            return render_template("home.html", message="Error de conexión a la base de datos")
+        finally:
+            connection.close()
+            print("Conexión cerrada")
+    else:
+        return redirect(url_for('login_pageRest'))
+
+@app.route('/logout_restaurant')
+def logout_restaurant():
+    session.pop('username', None)
+    session.pop('user_type', None)
+    return redirect(url_for('home'))
 
 @app.route('/userhome')
 def userhome():
