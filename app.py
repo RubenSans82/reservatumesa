@@ -316,7 +316,91 @@ def restaurant_details(restaurant_id):
     else:
         return redirect(url_for('home'))
         
+@app.route('/restaurant/reservations/<date>')
+def restaurant_reservations(date):
+    if 'username' in session and session.get('user_type') == 'restaurant':
+        connection = db.get_connection()
+        try:
+            with connection.cursor() as cursor:
+                # Get restaurant data
+                query = "SELECT * FROM restaurant WHERE username = %s"
+                data = (session['username'],)
+                cursor.execute(query, data)
+                restaurant = cursor.fetchone()
+                
+                if restaurant:
+                    # Get reservations for this restaurant on selected date with client info
+                    query = """
+                        SELECT r.*, c.username as client_name 
+                        FROM reservation r
+                        JOIN client c ON r.client_id = c.client_id
+                        WHERE r.restaurant_id = %s AND r.date = %s
+                        ORDER BY r.time
+                    """
+                    cursor.execute(query, (restaurant['restaurant_id'], date))
+                    reservations = cursor.fetchall()
+                    
+                    # Convert timedelta to string for display
+                    for reservation in reservations:
+                        if isinstance(reservation['time'], timedelta):
+                            reservation['time'] = str(reservation['time'])
+                    
+                    return render_template('restaurant/reservations.html', 
+                                          restaurant=restaurant,
+                                          reservations=reservations,
+                                          selected_date=date)
+                else:
+                    # Something went wrong with the session data
+                    session.pop('username', None)
+                    session.pop('user_type', None)
+                    return redirect(url_for('home'))
+        except Exception as e:
+            print("Ocurrió un error al conectar a la bbdd: ", e)
+            return render_template("home.html", message="Error de conexión a la base de datos")
+        finally:
+            connection.close()
+            print("Conexión cerrada")
+    else:
+        return redirect(url_for('login_pageRest'))
+
+@app.route('/restaurant/update_reservation_status', methods=['POST'])
+def update_reservation_status():
+    if 'username' in session and session.get('user_type') == 'restaurant':
+        reservation_id = request.form.get('reservation_id')
+        new_status = request.form.get('status')
+        date = request.form.get('date')
         
+        connection = db.get_connection()
+        try:
+            with connection.cursor() as cursor:
+                # First verify this reservation belongs to the logged in restaurant
+                verify_query = """
+                    SELECT r.restaurant_id, rest.username
+                    FROM reservation r
+                    JOIN restaurant rest ON r.restaurant_id = rest.restaurant_id
+                    WHERE r.reservation_id = %s
+                """
+                cursor.execute(verify_query, (reservation_id,))
+                result = cursor.fetchone()
+                
+                if result and result['username'] == session['username']:
+                    # Update the reservation status
+                    update_query = "UPDATE reservation SET status = %s WHERE reservation_id = %s"
+                    cursor.execute(update_query, (new_status, reservation_id))
+                    connection.commit()
+                    
+                    # Return to the reservations page
+                    return redirect(url_for('restaurant_reservations', date=date))
+                else:
+                    return render_template("home.html", message="No tienes permiso para modificar esta reserva")
+        except Exception as e:
+            print("Ocurrió un error al actualizar la reserva: ", e)
+            return render_template("home.html", message="Error al actualizar la reserva")
+        finally:
+            connection.close()
+    else:
+        return redirect(url_for('login_pageRest'))
+
 @app.route('/booking/<int:restaurant_id>')
 def booking(restaurant_id):
     connnection = db.get_connection()
