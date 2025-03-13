@@ -77,62 +77,64 @@
                                         </button>
                                     </div>
                                 </div>
-                                
-                                <!-- Edit Modal -->
-                                <div class="modal fade" id="editModal{{ reservation.reservation_id }}" tabindex="-1" aria-labelledby="editModalLabel{{ reservation.reservation_id }}" aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="editModalLabel{{ reservation.reservation_id }}">Modificar Reserva</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <form action="{{ url_for('update_reservation', reservation_id=reservation.reservation_id) }}" method="POST">
-                                                <div class="modal-body">
-                                                    <div class="mb-3">
-                                                        <label for="diners{{ reservation.reservation_id }}" class="form-label">Número de personas</label>
-                                                        <input type="number" class="form-control" id="diners{{ reservation.reservation_id }}" name="diners" value="{{ reservation.diners }}" min="1" required>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="date{{ reservation.reservation_id }}" class="form-label">Fecha</label>
-                                                        <input type="date" class="form-control" id="date{{ reservation.reservation_id }}" name="date" value="{{ reservation.date.strftime('%Y-%m-%d') }}" required>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="time{{ reservation.reservation_id }}" class="form-label">Hora</label>
-                                                        <input type="time" class="form-control" id="time{{ reservation.reservation_id }}" name="time" value="{{ reservation.time }}" required>
-                                                    </div>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                                    <button type="submit" class="btn button-pulse">Guardar Cambios</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Cancel Modal -->
-                                <div class="modal fade" id="cancelModal{{ reservation.reservation_id }}" tabindex="-1" aria-labelledby="cancelModalLabel{{ reservation.reservation_id }}" aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="cancelModalLabel{{ reservation.reservation_id }}">Confirmar Cancelación</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <p>¿Estás seguro de que quieres cancelar tu reserva en {{ reservation.restaurant_name }} para el {{ reservation.date.strftime('%d/%m/%Y') }} a las {{ reservation.time }}?</p>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, Mantener</button>
-                                                <form action="{{ url_for('cancel_reservation', reservation_id=reservation.reservation_id) }}" method="POST">
-                                                    <button type="submit" class="btn btn-danger">Sí, Cancelar</button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         {% endfor %}
                     </div>
+                    
+                    <!-- Modales fuera de las tarjetas -->
+                    {% for reservation in reservations %}
+                        <!-- Edit Modal -->
+                        <div class="modal fade" id="editModal{{ reservation.reservation_id }}" tabindex="-1" aria-labelledby="editModalLabel{{ reservation.reservation_id }}" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="editModalLabel{{ reservation.reservation_id }}">Modificar Reserva</h5>
+                                    </div>
+                                    <form action="{{ url_for('update_reservation', reservation_id=reservation.reservation_id) }}" method="POST">
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label for="diners{{ reservation.reservation_id }}" class="form-label">Número de personas</label>
+                                                <input type="number" class="form-control" id="diners{{ reservation.reservation_id }}" name="diners" value="{{ reservation.diners }}" min="1" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="date{{ reservation.reservation_id }}" class="form-label">Fecha</label>
+                                                <input type="date" class="form-control" id="date{{ reservation.reservation_id }}" name="date" value="{{ reservation.date.strftime('%Y-%m-%d') }}" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="time{{ reservation.reservation_id }}" class="form-label">Hora</label>
+                                                <input type="time" class="form-control" id="time{{ reservation.reservation_id }}" name="time" value="{{ reservation.time }}" required>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                            <button type="submit" class="btn button-pulse">Guardar Cambios</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Cancel Modal -->
+                        <div class="modal fade" id="cancelModal{{ reservation.reservation_id }}" tabindex="-1" aria-labelledby="cancelModalLabel{{ reservation.reservation_id }}" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="cancelModalLabel{{ reservation.reservation_id }}">Confirmar Cancelación</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>¿Estás seguro de que quieres cancelar tu reserva en {{ reservation.restaurant_name }} para el {{ reservation.date.strftime('%d/%m/%Y') }} a las {{ reservation.time }}?</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, Mantener</button>
+                                        <form action="{{ url_for('cancel_reservation', reservation_id=reservation.reservation_id) }}" method="POST">
+                                            <button type="submit" class="btn btn-danger">Sí, Cancelar</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
                 {% else %}
                     <div class="no-reservations">
                         <p>No tienes reservas actualmente.</p>

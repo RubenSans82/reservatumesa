@@ -1733,3 +1733,251 @@ input.invalid, textarea.invalid {
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
     white-space: nowrap;
 }
+
+/* Estilos para modales - inspirados en restaurant.html */
+.modal-dialog {
+    max-width: 550px;
+    margin: 1.75rem auto;
+}
+
+.modal-content {
+    background-color: #FFEB3B;
+    padding: 0;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    border: 3px solid var(--accent-color);
+    position: relative;
+    transform: rotate(-1deg);
+    transition: all 0.4s ease;
+    overflow: hidden;
+}
+
+/* Borde punteado decorativo alrededor del modal */
+.modal-content::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    border: 2px dashed var(--primary-color);
+    border-radius: 15px;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.modal-header {
+    background-color: var(--accent-color);
+    border-bottom: 3px solid var(--primary-color);
+    padding: 20px 25px;
+    position: relative;
+}
+
+.modal-title {
+    color: var(--dark-color);
+    font-weight: 700;
+    font-size: 1.6rem;
+    margin: 0 auto;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.modal-header .btn-close {
+    background-color: white;
+    opacity: 1;
+    padding: 10px;
+    margin: 0;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.modal-header .btn-close:hover {
+    transform: rotate(90deg) scale(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.modal-body {
+    padding: 25px 30px;
+    color: var(--dark-color);
+}
+
+.modal-body label {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--dark-color);
+    margin-bottom: 10px;
+    display: block;
+}
+
+.modal-body input,
+.modal-body select,
+.modal-body textarea {
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 12px 15px;
+    width: 100%;
+    font-size: 1rem;
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05) inset;
+    transition: all 0.3s ease;
+}
+
+.modal-body input:focus,
+.modal-body select:focus,
+.modal-body textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(255, 46, 99, 0.2);
+    outline: none;
+}
+
+.modal-body p {
+    font-size: 1.1rem;
+    line-height: 1.5;
+    color: var(--dark-color);
+    text-align: center;
+    font-weight: 500;
+    margin: 15px 0;
+}
+
+.modal-footer {
+    border-top: 3px solid var(--primary-color);
+    padding: 20px 25px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.modal-footer .btn {
+    padding: 12px 20px;
+    min-width: 120px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.modal-footer .btn-secondary {
+    background-color: var(--secondary-color);
+    border: none;
+    color: white;
+    box-shadow: 0 4px 10px rgba(0, 194, 168, 0.4);
+}
+
+.modal-footer .btn-danger {
+    background-color: var(--primary-color);
+    border: none;
+    color: white;
+    box-shadow: 0 4px 10px rgba(255, 46, 99, 0.4);
+}
+
+.modal-footer form {
+    margin: 0;
+    padding: 0;
+    background: none;
+    box-shadow: none;
+    border: none;
+    transform: none;
+}
+
+.modal-footer form:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.modal-footer form:before {
+    display: none;
+}
+
+.modal-footer .btn-danger:hover {
+    background-color: #ff0044;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(255, 0, 68, 0.5);
+}
+
+.modal-footer .btn-secondary:hover {
+    background-color: #00a58e;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(0, 165, 142, 0.5);
+}
+
+.modal-footer .button-pulse {
+    background-color: var(--accent-color);
+    color: var(--dark-color);
+    box-shadow: 0 4px 10px rgba(255, 190, 11, 0.4);
+}
+
+.modal-footer .button-pulse:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(255, 190, 11, 0.6);
+}
+
+/* Efecto de apertura y backdrop estilizado */
+.modal.show .modal-dialog {
+    animation: modal-wobble 0.5s ease-out;
+}
+
+@keyframes modal-wobble {
+    0% { opacity: 0; transform: scale(0.8) translateY(30px); }
+    70% { transform: scale(1.05) translateY(-10px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-backdrop.show {
+    opacity: 0.8;
+    backdrop-filter: blur(5px);
+}
+
+/* Animaciones de hover para el modal */
+.modal-content:hover {
+    animation: modal-hover-wobble 0.8s ease-in-out;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+    border-color: var(--primary-color);
+}
+
+@keyframes modal-hover-wobble {
+    0%, 100% { transform: rotate(-1deg); }
+    25% { transform: rotate(1deg) scale(1.01); }
+    50% { transform: rotate(-0.5deg) scale(1.02); }
+    75% { transform: rotate(0.5deg) scale(1.01); }
+}
+
+.modal-content:hover::before {
+    animation: modal-hover-glow 1.5s infinite;
+}
+
+@keyframes modal-hover-glow {
+    0%, 100% { box-shadow: 0 8px 20px rgba(255, 46, 99, 0.6); }
+    50% { box-shadow: 0 8px 25px rgba(255, 190, 11, 0.8); }
+}
+
+/* Adaptaciones responsivas */
+@media (max-width: 768px) {
+    .modal-dialog {
+        margin: 1rem;
+        width: calc(100% - 2rem);
+    }
+    
+    .modal-title {
+        font-size: 1.3rem;
+    }
+    
+    .modal-body {
+        padding: 20px;
+    }
+    
+    .modal-footer {
+        flex-direction: column;
+        padding: 15px 20px;
+    }
+    
+    .modal-footer .btn {
+        width: 100%;
+        margin: 5px 0;
+    }
+}
