@@ -226,8 +226,11 @@ def restaurant():
                         "23:00": ["23:00"]
                     }
                     
-                    # Process reservations to fit into the matrix
-                    # Only show confirmed or pending reservations, not rejected ones
+                    # Improved algorithm for processing reservations to fit into the matrix
+                    # Sort reservations by time to ensure consistent placement
+                    from operator import itemgetter
+                    all_reservations = sorted(all_reservations, key=itemgetter('time'))
+                    
                     for reservation in all_reservations:
                         # Get status with a default value if it doesn't exist
                         status = reservation.get('status', 'pendiente')
@@ -250,25 +253,44 @@ def restaurant():
                             # Check if this time is in our defined slots
                             if res_time in reservation_matrix:
                                 # Find first available seat index for this reservation
-                                start_seat = 0
                                 found_spot = False
                                 
-                                # Check if we have room for this reservation
+                                # Improved algorithm: Find the highest occupied seat index
+                                # for all affected time slots to determine the next available seat
+                                affected_slots = time_slot_mapping.get(res_time, [res_time])
+                                start_seat = 0
+                                
                                 while start_seat < restaurant['capacity'] and not found_spot:
-                                    # Check all affected time slots for this reservation
                                     all_slots_available = True
+                                    max_occupied_seat = start_seat - 1  # Track the highest occupied seat
                                     
-                                    for slot in time_slot_mapping.get(res_time, [res_time]):
-                                        # Skip slots outside our matrix (like after end of service)
+                                    for slot in affected_slots:
                                         if slot not in reservation_matrix:
                                             continue
-                                            
+                                        
                                         # Check if there's enough space in this time slot
                                         for i in range(reservation['diners']):
                                             seat_idx = start_seat + i
-                                            if (seat_idx in reservation_matrix[slot] or 
-                                                seat_idx >= restaurant['capacity']):
+                                            
+                                            if seat_idx >= restaurant['capacity']:
                                                 all_slots_available = False
+                                                break
+                                                
+                                            # If seat is occupied, find the furthest occupied seat
+                                            if seat_idx in reservation_matrix[slot]:
+                                                all_slots_available = False
+                                                
+                                                # Find the end of this existing reservation
+                                                existing_res = reservation_matrix[slot][seat_idx]
+                                                existing_end = seat_idx
+                                                
+                                                # Find the last seat of this existing reservation
+                                                for j in range(1, existing_res['diners']):
+                                                    if seat_idx + j in reservation_matrix[slot] and reservation_matrix[slot][seat_idx + j] == existing_res:
+                                                        existing_end = seat_idx + j
+                                                
+                                                # Update the max occupied seat if this one extends further
+                                                max_occupied_seat = max(max_occupied_seat, existing_end)
                                                 break
                                         
                                         if not all_slots_available:
@@ -276,14 +298,15 @@ def restaurant():
                                     
                                     if all_slots_available:
                                         # We found a spot! Reserve it in all affected time slots
-                                        for slot in time_slot_mapping.get(res_time, [res_time]):
+                                        for slot in affected_slots:
                                             if slot in reservation_matrix:
-                                                reservation_matrix[slot][start_seat] = reservation
+                                                # Mark all seats for this reservation
+                                                for i in range(reservation['diners']):
+                                                    reservation_matrix[slot][start_seat + i] = reservation
                                         found_spot = True
-                                        break
                                     else:
-                                        # Try next seat position
-                                        start_seat += 1
+                                        # Skip to after the furthest occupied seat
+                                        start_seat = max_occupied_seat + 1
                     
                     return render_template('restaurant/home.html', 
                                           restaurant=restaurant,
