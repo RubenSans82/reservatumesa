@@ -27,8 +27,11 @@
         </div>
     </div>
     
-    <!-- Logout button at top right -->
-    <div class="logout-container">
+    <!-- Navbar buttons at top right -->
+    <div class="nav-buttons-container">
+        <a href="/restaurant/edit_profile" class="btn button-pulse nav-btn me-2">
+            <i class="bi bi-person-gear"></i> Editar Perfil
+        </a>
         <a href="/logout_restaurant" class="btn button-pulse logout-btn">
             <i class="bi bi-box-arrow-right"></i> Cerrar Cocina
         </a>
@@ -43,9 +46,9 @@
                     <div class="restaurant-item" {% if restaurant.image %}style="background-image: url('{{ url_for('static', filename='img/' + restaurant.image) }}'); background-size: cover; background-position: center;"{% endif %}>
                         <div class="restaurant-content">
                             <h3>{{ restaurant.restaurant_name }}</h3>
-                            <div class="mt-3">
+                            <div class="mt-3 d-flex gap-2">
                                 <a href="/restaurant/manage" class="btn button-pulse">
-                                    <i class="bi bi-gear"></i> Gestionar
+                                    <i class="bi bi-calendar-check"></i> Gestionar Reservas
                                 </a>
                             </div>
                         </div>

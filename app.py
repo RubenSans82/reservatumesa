@@ -74,6 +74,8 @@ def loginRest():
                     #guardar datos en session
                     session['username'] = username
                     session['user_type'] = 'restaurant'
+                    session['restaurant_id'] = user['restaurant_id']  # Añadir el ID del restaurante
+                    session['restaurant_name'] = user['restaurant_name']  # Añadir el nombre del restaurante
                     return redirect(url_for('restaurant'))
                 else:
                     return render_template("restaurant/login_restaurant.html", message="Usuario o contraseña incorrecta")
@@ -395,6 +397,167 @@ def cancel_reservation(reservation_id):
         print("Error al cancelar reserva:", e)
         connection.rollback()
         return redirect(url_for('my_reservations'))
+    finally:
+        connection.close()
+
+@app.route('/restaurant/edit_profile')
+def edit_restaurant_profile():
+    # Verificar que el restaurante está logueado
+    if 'restaurant_id' not in session:
+        return redirect(url_for('login_pageRest'))
+    
+    restaurant_id = session['restaurant_id']
+    connection = db.get_connection()
+    
+    try:
+        with connection.cursor() as cursor:
+            # Obtener datos del restaurante
+            query = "SELECT * FROM restaurant WHERE restaurant_id = %s"
+            cursor.execute(query, (restaurant_id,))
+            restaurant = cursor.fetchone()
+            
+            if not restaurant:
+                return redirect(url_for('login_pageRest'))
+            
+            return render_template('restaurant/edit_profile.html', restaurant=restaurant)
+    except Exception as e:
+        print("Error al obtener datos del restaurante:", e)
+        return redirect(url_for('restauranthome'))
+    finally:
+        connection.close()
+
+@app.route('/restaurant/update_profile', methods=['POST'])
+def update_restaurant_profile():
+    # Verificar que el restaurante está logueado
+    if 'restaurant_id' not in session:
+        return redirect(url_for('login_pageRest'))
+    
+    restaurant_id = session['restaurant_id']
+    connection = db.get_connection()
+    
+    # Obtener datos del formulario (incluyendo nombre y dirección)
+    restaurant_name = request.form.get('restaurant_name')
+    address = request.form.get('address')
+    phone = request.form.get('phone')
+    website = request.form.get('website')
+    description = request.form.get('description')
+    current_password = request.form.get('current_password')
+    new_password = request.form.get('new_password')
+    confirm_password = request.form.get('confirm_password')
+    
+    # Procesar la URL para asegurar formato correcto
+    if website:
+        # Si la URL comienza con 'www.' y no tiene protocolo, agregarlo
+        if website.startswith('www.') and not website.startswith(('http://', 'https://')):
+            website = 'https://' + website
+        # Si no tiene www ni protocolo, agregar ambos
+        elif not website.startswith(('http://', 'https://', 'www.')):
+            website = 'https://www.' + website
+        # Si tiene www pero no protocolo
+        elif website.startswith('www.'):
+            website = 'https://' + website
+    
+    try:
+        with connection.cursor() as cursor:
+            # Obtener datos actuales del restaurante
+            query = "SELECT * FROM restaurant WHERE restaurant_id = %s"
+            cursor.execute(query, (restaurant_id,))
+            restaurant = cursor.fetchone()
+            
+            # Verificar contraseña actual
+            stored_password = restaurant['password']
+            
+            if not bcrypt.checkpw(current_password.encode('utf-8'), stored_password.encode('utf-8')):
+                return render_template(
+                    'restaurant/edit_profile.html',
+                    restaurant=restaurant,
+                    message="La contraseña actual no es correcta",
+                    message_type="danger"
+                )
+            
+            # Verificar si se quiere cambiar la contraseña
+            if new_password:
+                if new_password != confirm_password:
+                    return render_template(
+                        'restaurant/edit_profile.html',
+                        restaurant=restaurant,
+                        message="Las nuevas contraseñas no coinciden",
+                        message_type="danger"
+                    )
+                
+                # Encriptar nueva contraseña
+                hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+            else:
+                # Mantener la contraseña actual
+                hashed_password = stored_password
+            
+            # Manejar la imagen si se proporciona
+            image = request.files.get('image')
+            if image and image.filename:
+                # Importaciones necesarias para manejar archivos
+                from werkzeug.utils import secure_filename
+                import os
+                import time
+                
+                # Definir carpeta de subida si no está definida
+                if not hasattr(app, 'config') or 'UPLOAD_FOLDER' not in app.config:
+                    app.config['UPLOAD_FOLDER'] = 'static/img'
+                
+                # Asegurarse de que el nombre de archivo sea seguro
+                secure_filename_value = secure_filename(image.filename)
+                # Generar un nombre único basado en timestamp
+                timestamp = int(time.time())
+                filename = f"{timestamp}_{secure_filename_value}"
+                
+                # Asegurar que la carpeta existe
+                os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+                
+                # Guardar la imagen
+                image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                image.save(image_path)
+                image_name = filename
+            else:
+                # Mantener la imagen actual
+                image_name = restaurant['image']
+            
+            # Actualizar datos del restaurante (incluyendo nombre y dirección)
+            update_query = """
+            UPDATE restaurant 
+            SET restaurant_name = %s, address = %s, phone = %s, 
+                website = %s, description = %s, password = %s, 
+                image = %s
+            WHERE restaurant_id = %s
+            """
+            cursor.execute(update_query, (
+                restaurant_name, address, phone, website, 
+                description, hashed_password, image_name, 
+                restaurant_id
+            ))
+            connection.commit()
+            
+            # Actualizar el nombre del restaurante en la sesión
+            session['restaurant_name'] = restaurant_name
+            
+            # Obtener los datos actualizados para mostrar en el formulario
+            query = "SELECT * FROM restaurant WHERE restaurant_id = %s"
+            cursor.execute(query, (restaurant_id,))
+            updated_restaurant = cursor.fetchone()
+            
+            return render_template(
+                'restaurant/edit_profile.html',
+                restaurant=updated_restaurant,
+                message="Perfil actualizado correctamente",
+                message_type="success"
+            )
+    except Exception as e:
+        print("Error al actualizar perfil del restaurante:", e)
+        connection.rollback()
+        return render_template(
+            'restaurant/edit_profile.html',
+            restaurant=restaurant,
+            message=f"Error al actualizar el perfil: {str(e)}",
+            message_type="danger"
+        )
     finally:
         connection.close()
 
