@@ -10,6 +10,34 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Fredoka+One&family=Righteous&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Estilo adicional para las pestañas */
+        .nav-tabs .nav-link {
+            padding: 0.5rem 1rem;
+        }
+        @media (min-width: 768px) {
+            .auth-container {
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+        }
+        
+        /* Fix para el checkbox en el modal de eliminación */
+        #confirmDelete {
+            opacity: 1;
+            background-color: transparent;
+            width: 16px;
+            height: 16px;
+            border: 1px solid #adb5bd;
+            appearance: auto;
+            -webkit-appearance: checkbox;
+            -moz-appearance: checkbox;
+        }
+        .form-check-input:checked {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+    </style>
 </head>
 <body>
     <div class="geo-shape geo-square"></div>
@@ -44,69 +72,185 @@
                         </div>
                     {% endif %}
                     
-                    <form action="/restaurant/update_profile" method="POST" enctype="multipart/form-data">
-                        <div class="mb-3">
-                            <label for="restaurant_name" class="form-label">Nombre del Restaurante</label>
-                            <input type="text" class="form-control" id="restaurant_name" name="restaurant_name" value="{{ restaurant.restaurant_name }}" required>
-                        </div>
+                    <form action="/restaurant/update_profile" method="POST" enctype="multipart/form-data" style="max-width: 750px;">
+                        <!-- Pestañas de navegación -->
+                        <ul class="nav nav-tabs mb-4" id="profileTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basic-info" 
+                                    type="button" role="tab" aria-controls="basic-info" aria-selected="true">
+                                    <i class="bi bi-info-circle"></i> Información Básica
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="detail-tab" data-bs-toggle="tab" data-bs-target="#detail-info" 
+                                    type="button" role="tab" aria-controls="detail-info" aria-selected="false">
+                                    <i class="bi bi-image-fill"></i> Descripción e Imagen
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security-info" 
+                                    type="button" role="tab" aria-controls="security-info" aria-selected="false">
+                                    <i class="bi bi-shield-lock"></i> Seguridad
+                                </button>
+                            </li>
+                        </ul>
                         
-                        <div class="mb-3">
-                            <label for="address" class="form-label">Dirección</label>
-                            <input type="text" class="form-control" id="address" name="address" value="{{ restaurant.address }}" required>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="phone" class="form-label">Teléfono</label>
-                            <input type="tel" class="form-control" id="phone" name="phone" value="{{ restaurant.phone }}" required>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="website" class="form-label">Sitio Web</label>
-                            <input type="text" class="form-control" id="website" name="website" value="{{ restaurant.website }}" placeholder="www.turestaurante.com">
-                            <small class="form-text text-muted">Puedes ingresar el sitio web con o sin el prefijo 'www.' o 'https://'</small>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="description" class="form-label">Descripción</label>
-                            <textarea class="form-control" id="description" name="description" rows="4">{{ restaurant.description }}</textarea>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="image" class="form-label">Imagen del Restaurante</label>
-                            
-                            {% if restaurant.image %}
-                                <div class="current-image mb-2">
-                                    <img src="{{ url_for('static', filename='img/' + restaurant.image) }}" alt="{{ restaurant.restaurant_name }}" class="img-thumbnail" style="max-width: 200px;">
+                        <!-- Contenido de las pestañas -->
+                        <div class="tab-content" id="profileTabContent">
+                            <!-- Información Básica -->
+                            <div class="tab-pane fade show active" id="basic-info" role="tabpanel" aria-labelledby="basic-tab">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="restaurant_name" class="form-label">Nombre del Restaurante</label>
+                                        <input type="text" class="form-control" id="restaurant_name" name="restaurant_name" value="{{ restaurant.restaurant_name }}" required>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="phone" class="form-label">Teléfono</label>
+                                        <input type="tel" class="form-control" id="phone" name="phone" value="{{ restaurant.phone }}" required>
+                                    </div>
                                 </div>
-                            {% endif %}
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="address" class="form-label">Dirección</label>
+                                        <input type="text" class="form-control" id="address" name="address" value="{{ restaurant.address }}" required>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="website" class="form-label">Sitio Web</label>
+                                        <input type="text" class="form-control" id="website" name="website" value="{{ restaurant.website }}" placeholder="www.turestaurante.com">
+                                        <small class="form-text text-muted">Con o sin prefijos 'www.' o 'https://'</small>
+                                    </div>
+                                </div>
+                            </div>
                             
-                            <input type="file" class="form-control" id="image" name="image" accept="image/*">
-                            <small class="form-text text-muted">Deja este campo vacío si no quieres cambiar la imagen actual.</small>
+                            <!-- Descripción e Imagen -->
+                            <div class="tab-pane fade" id="detail-info" role="tabpanel" aria-labelledby="detail-tab">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="description" class="form-label">Descripción</label>
+                                        <textarea class="form-control" id="description" name="description" rows="6">{{ restaurant.description }}</textarea>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Imagen del Restaurante</label>
+                                        {% if restaurant.image %}
+                                            <div class="text-center mb-2">
+                                                <img src="{{ url_for('static', filename='img/' + restaurant.image) }}" 
+                                                     alt="{{ restaurant.restaurant_name }}" 
+                                                     class="img-thumbnail" 
+                                                     style="max-height: 150px;">
+                                            </div>
+                                        {% endif %}
+                                        <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                                        <small class="form-text text-muted">Deja vacío para mantener la imagen actual</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Seguridad -->
+                            <div class="tab-pane fade" id="security-info" role="tabpanel" aria-labelledby="security-tab">
+                                <div class="row">
+                                    <div class="col-md-12 mb-4">
+                                        <div class="message text-center mb-3">
+                                            <i class="bi bi-exclamation-circle-fill me-2"></i>
+                                            <span>¡Importante!</span> Completa los campos para cambiar tu contraseña o ingresa solo tu contraseña actual para confirmar otros cambios.
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="current_password" class="form-label">Contraseña Actual</label>
+                                        <input type="password" class="form-control" id="current_password" name="current_password" required>
+                                        <small class="form-text text-muted">Necesaria para confirmar cualquier cambio</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="new_password" class="form-label">Nueva Contraseña</label>
+                                        <input type="password" class="form-control" id="new_password" name="new_password">
+                                        <small class="form-text text-muted">Deja vacío si no quieres cambiarla</small>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="confirm_password" class="form-label">Confirmar Nueva Contraseña</label>
+                                        <input type="password" class="form-control" id="confirm_password" name="confirm_password">
+                                    </div>
+                                </div>
+                                
+                                <!-- Sección de eliminar cuenta -->
+                                <hr class="mt-4 mb-4">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="card border-danger">
+                                            <div class="card-header bg-danger text-white">
+                                                <i class="bi bi-exclamation-triangle-fill me-2"></i>Zona de peligro
+                                            </div>
+                                            <div class="card-body">
+                                                <h5 class="card-title">Eliminar cuenta de restaurante</h5>
+                                                <p class="card-text">Esta acción eliminará permanentemente tu cuenta, incluyendo todas tus reservas y datos asociados. No podrás recuperarlos después.</p>
+                                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                                                    <i class="bi bi-trash"></i> Eliminar mi cuenta
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         
-                        <div class="mb-4">
-                            <label for="current_password" class="form-label">Contraseña Actual (para confirmar cambios)</label>
-                            <input type="password" class="form-control" id="current_password" name="current_password" required>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="new_password" class="form-label">Nueva Contraseña</label>
-                            <input type="password" class="form-control" id="new_password" name="new_password">
-                            <small class="form-text text-muted">Deja este campo vacío si no quieres cambiar tu contraseña.</small>
-                        </div>
-                        
-                        <div class="mb-4">
-                            <label for="confirm_password" class="form-label">Confirmar Nueva Contraseña</label>
-                            <input type="password" class="form-control" id="confirm_password" name="confirm_password">
-                        </div>
-                        
-                        <div class="text-center">
+                        <div class="text-center mt-4">
                             <button type="submit" class="btn button-pulse btn-lg">
                                 <i class="bi bi-save"></i> Guardar Cambios
                             </button>
                         </div>
                     </form>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para confirmar eliminación de cuenta -->
+    <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteAccountModalLabel">Confirmar eliminación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="/restaurant/delete_account" method="POST">
+                    <div class="modal-body">
+                        <div class="message text-center mb-3">
+                            <i class="bi bi-exclamation-circle-fill me-2"></i>
+                            <span>¡Advertencia!</span> Esta acción no se puede deshacer
+                        </div>
+                        <p>Al eliminar tu cuenta de restaurante:</p>
+                        <ul>
+                            <li>Se eliminarán permanentemente todos tus datos</li>
+                            <li>Se cancelarán todas las reservas pendientes</li>
+                            <li>Tu perfil dejará de estar disponible en la plataforma</li>
+                        </ul>
+                        <div class="form-group mb-3">
+                            <label for="delete_confirm_password" class="form-label">Ingresa tu contraseña para confirmar:</label>
+                            <input type="password" class="form-control" id="delete_confirm_password" name="password" required>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="confirmDelete" required>
+                            <label class="form-check-label" for="confirmDelete">
+                                Confirmo que quiero eliminar permanentemente mi cuenta
+                            </label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Eliminar
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
