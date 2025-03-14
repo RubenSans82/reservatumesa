@@ -854,6 +854,7 @@ input.invalid, textarea.invalid {
 /* Logout and Back button styles - updated for scrolling with content */
 .logout-container, .back-container {
     display: flex;
+    justify-content: flex-end;
     gap: 10px;
     z-index: 100;
 }
@@ -1833,4 +1834,26 @@ input.invalid, textarea.invalid {
         width: 100%;
         max-width: 300px;
     }
+}
+
+/* New styling for the restaurant name in booking page */
+.restaurant-display-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--dark-color);
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 10px 15px;
+    border-radius: 8px;
+    border-left: 5px solid var(--accent-color);
+    margin-top: 5px;
+    margin-bottom: 15px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.restaurant-display-name:hover {
+    border-left-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.2);
 }

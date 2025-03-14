@@ -8,6 +8,7 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" defer></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script id="bookings-data" type="application/json">{{ bookings | tojson }}</script>
     <script id="restaurant" type="application/json">{{ restaurant | tojson }}</script>
@@ -43,9 +44,9 @@
                 
                 <form action="/booking" method="post" class="mt-3">
                     <div class="form-group">
-                        <label for="restaurant">Restaurante</label>
-                        <p id="restaurant">{{ restaurant.restaurant_name }} </p>
-                        <input type="hidden" name="restaurant" value="{{ restaurant.restaurant_id }}">
+                        <label for="restaurant-name">Restaurante</label>
+                        <p id="restaurant-name" class="restaurant-display-name">{{ restaurant.restaurant_name }}</p>
+                        <input type="hidden" name="restaurant" id="restaurant" value="{{ restaurant.restaurant_id }}">
                         <input type="hidden" name="user" value="{{session['client_id']}}">
                     </div>
                     <div class="form-group">
