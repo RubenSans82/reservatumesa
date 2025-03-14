@@ -4,9 +4,22 @@ import bcrypt  # Add this import for password hashing
 from config import Config  # Import Config class
 import json
 from datetime import timedelta
+import os
+from werkzeug.utils import secure_filename
+import time
 
 app = Flask(__name__)
 app.secret_key = Config.SECRET_KEY  # Set the secret key from Config
+
+# Configuración para la carga de archivos
+UPLOAD_FOLDER = os.path.join('static', 'img', 'restaurants')
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+
+# Asegurarse de que la carpeta existe
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/')
 def home():
@@ -150,43 +163,103 @@ def register_pageRest():
     return render_template('restaurant/register_restaurant.html')
 
         
-@app.route('/registered_restaurant',methods=['POST'])
-def registerRest():
-    #obtener los datos del formulario
-    username = request.form['username'] 
+@app.route('/registered_restaurant', methods=['POST'])
+def registered_restaurant():
+    # Obtener los datos del formulario
+    username = request.form['username']
     password = request.form['password']
     restaurant_name = request.form['name']
-    phone = request.form['phone']   
+    phone = request.form['phone']
     address = request.form['address']
     website = request.form['website']
     capacity = request.form['capacity']
     description = request.form['description']
-    #creamos la conexion
+    
+    print(f"Datos recibidos: username={username}, name={restaurant_name}")
+    
+    # Crear la conexión a la base de datos
     connection = db.get_connection()
+    
     try:
         with connection.cursor() as cursor:
             # Verificar si el usuario ya existe
             query = "SELECT * FROM restaurant WHERE username = %s"
-            data = (username,)
-            cursor.execute(query, data)
+            cursor.execute(query, (username,))
             user = cursor.fetchone()
+            
             if user:
-                return render_template("restaurant/register_restaurant.html", message="El usuario ya existe")
-            else:
-                # Hash the password
-                hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-                #crear la consulta
-                query = "INSERT INTO restaurant (username, password, restaurant_name, phone, address, website, capacity, description) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-                data = (username, hashed, restaurant_name, phone, address, website, capacity, description)
-                cursor.execute(query, data)
-                connection.commit()
-                return render_template("home.html", message="Restaurante registrado correctamente")
+                return render_template("restaurant/register_restaurant.html", mensaje="El usuario ya existe")
+            
+            # Procesar la contraseña
+            hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+            
+            # Procesar la imagen si fue subida
+            image_path = None
+            if 'restaurant_image' in request.files:
+                file = request.files['restaurant_image']
+                if file and file.filename != '':
+                    if allowed_file(file.filename):
+                        # Generar nombre único para la imagen
+                        filename = secure_filename(file.filename)
+                        unique_filename = f"{int(time.time())}_{filename}"
+                        file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
+                        
+                        # Asegurar que la carpeta existe
+                        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+                        
+                        # Guardar la imagen
+                        file.save(file_path)
+                        
+                        # Guardar la ruta relativa para la base de datos
+                        image_path = f"restaurants/{unique_filename}"
+                        print(f"Imagen guardada en: {file_path}")
+                        print(f"Ruta guardada en BD: {image_path}")
+                    else:
+                        return render_template("restaurant/register_restaurant.html", 
+                                             mensaje="Formato de imagen no válido. Use JPG, PNG, GIF o WEBP")
+            
+            # Si no se subió imagen, usar una por defecto
+            if not image_path:
+                image_path = "restaurants/default_restaurant.jpg"
+                print("Usando imagen por defecto")
+            
+            # Consultar la estructura de la tabla
+            try:
+                cursor.execute("DESCRIBE restaurant")
+                columns = cursor.fetchall()
+                column_names = [col['Field'] for col in columns]
+                print(f"Columnas en la tabla restaurant: {column_names}")
+            except Exception as e:
+                print(f"No se pudo obtener la estructura de la tabla: {e}")
+            
+            # Insertar el restaurante en la base de datos con los nombres de columna correctos
+            # Determinar si la columna del nombre del restaurante es 'name' o 'restaurant_name'
+            restaurant_name_column = 'restaurant_name'  # valor por defecto
+            if 'restaurant_name' not in column_names and 'name' in column_names:
+                restaurant_name_column = 'name'
+            
+            # Crear la consulta dinámica usando el nombre correcto de la columna
+            query = f"""
+            INSERT INTO restaurant (username, password, {restaurant_name_column}, phone, address, 
+                                  website, capacity, description, image) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """
+            
+            print(f"Ejecutando consulta: {query}")
+            cursor.execute(query, (username, hashed, restaurant_name, phone, address, 
+                                 website, capacity, description, image_path))
+            connection.commit()
+            
+            print("Restaurante registrado correctamente")
+            return render_template("home.html", mensaje="Restaurante registrado correctamente")
+            
     except Exception as e:
-        print("Ocurrió un error al conectar a la bbdd: ", e)
-        return render_template("home.html", message="Error al registrar el restaurante")
+        print(f"Error al registrar restaurante: {e}")
+        connection.rollback()
+        return render_template("restaurant/register_restaurant.html", 
+                             mensaje=f"Error al registrar el restaurante: {str(e)}")
     finally:
         connection.close()
-        print("Conexión cerrada")
 
 @app.route('/restaurant')
 def restaurant():
