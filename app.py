@@ -100,7 +100,7 @@ def restaurant_details(restaurant_id):
 
 
 
-# ------------- Parte de Restaurante -------------restaurant_reservations
+# ------------- Parte de Restaurante -------------
 
 @app.route('/login_restaurant')
 def login_pageRest():
@@ -132,7 +132,7 @@ def loginRest():
                     # Redirecting to reservations page with today's date
                     from datetime import date
                     today = date.today().isoformat()
-                    return redirect(url_for('', date=today))
+                    return redirect(url_for('restaurant_reservations', date=today))
                 else:
                     return render_template("restaurant/login_restaurant.html", message="Usuario o contraseña incorrecta")
             else:
