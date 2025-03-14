@@ -960,8 +960,67 @@ def update_restaurant_profile():
     finally:
         connection.close()
 
-
-
+@app.route('/restaurant/delete_account', methods=['POST'])
+def delete_restaurant_account():
+    # Verificar que el restaurante está logueado
+    if 'restaurant_id' not in session:
+        return redirect(url_for('login_pageRest'))
+    
+    restaurant_id = session['restaurant_id']
+    password = request.form.get('password')
+    
+    connection = db.get_connection()
+    
+    try:
+        with connection.cursor() as cursor:
+            # Verificar la contraseña
+            query = "SELECT * FROM restaurant WHERE restaurant_id = %s"
+            cursor.execute(query, (restaurant_id,))
+            restaurant = cursor.fetchone()
+            
+            if not restaurant:
+                return redirect(url_for('login_pageRest'))
+            
+            # Verificar contraseña
+            stored_password = restaurant['password']
+            
+            if not bcrypt.checkpw(password.encode('utf-8'), stored_password.encode('utf-8')):
+                return render_template(
+                    'restaurant/edit_profile.html',
+                    restaurant=restaurant,
+                    message="Contraseña incorrecta. No se pudo eliminar la cuenta.",
+                    message_type="danger"
+                )
+            
+            # Primero eliminar todas las reservas asociadas
+            delete_reservations_query = "DELETE FROM reservation WHERE restaurant_id = %s"
+            cursor.execute(delete_reservations_query, (restaurant_id,))
+            
+            # Luego eliminar la cuenta del restaurante
+            delete_account_query = "DELETE FROM restaurant WHERE restaurant_id = %s"
+            cursor.execute(delete_account_query, (restaurant_id,))
+            
+            connection.commit()
+            
+            # Cerrar la sesión
+            session.pop('username', None)
+            session.pop('user_type', None)
+            session.pop('restaurant_id', None)
+            session.pop('restaurant_name', None)
+            
+            # Mostrar mensaje de éxito en la página principal
+            return redirect(url_for('home', message="Tu cuenta ha sido eliminada correctamente", message_type="success"))
+    except Exception as e:
+        print("Error al eliminar cuenta de restaurante:", e)
+        connection.rollback()
+        return render_template(
+            'restaurant/edit_profile.html',
+            restaurant=restaurant if 'restaurant' in locals() else None,
+            message=f"Error al eliminar la cuenta: {str(e)}",
+            message_type="danger"
+        )
+    finally:
+        connection.close()
 
 @app.route('/logout')
 def logout():
