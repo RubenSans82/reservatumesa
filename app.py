@@ -77,10 +77,30 @@ def userhome():
     else:
         return redirect(url_for('home')) 
     
+    
+@app.route('/restaurant/<int:restaurant_id>')
+def restaurant_details(restaurant_id):
+    if 'username' in session:
+        connection = db.get_connection()
+        try:
+            with connection.cursor() as cursor:
+                query = "SELECT * FROM restaurant WHERE restaurant_id = %s"
+                data = (restaurant_id,)  # Add comma to make this a tuple
+                cursor.execute(query,data)
+                restaurant = cursor.fetchone()
+                return render_template('user/restaurant.html', restaurant=restaurant)
+        except Exception as e:
+            print("Ocurrió un error al conectar a la bbdd: ", e)
+        finally:
+            connection.close()
+            print("Conexión cerrada")    
+    else:
+        return redirect(url_for('home'))
+    
 
 
 
-# ------------- Parte de Restaurante -------------
+# ------------- Parte de Restaurante -------------restaurant_reservations
 
 @app.route('/login_restaurant')
 def login_pageRest():
@@ -112,7 +132,7 @@ def loginRest():
                     # Redirecting to reservations page with today's date
                     from datetime import date
                     today = date.today().isoformat()
-                    return redirect(url_for('restaurant_reservations', date=today))
+                    return redirect(url_for('', date=today))
                 else:
                     return render_template("restaurant/login_restaurant.html", message="Usuario o contraseña incorrecta")
             else:
@@ -333,26 +353,6 @@ def logout_restaurant():
     session.pop('user_type', None)
     return redirect(url_for('home'))
 
-   
-    
-@app.route('/restaurant/<int:restaurant_id>')
-def restaurant_details(restaurant_id):
-    if 'username' in session:
-        connection = db.get_connection()
-        try:
-            with connection.cursor() as cursor:
-                query = "SELECT * FROM restaurant WHERE restaurant_id = %s"
-                data = (restaurant_id,)  # Add comma to make this a tuple
-                cursor.execute(query,data)
-                restaurant = cursor.fetchone()
-                return render_template('user/restaurant.html', restaurant=restaurant)
-        except Exception as e:
-            print("Ocurrió un error al conectar a la bbdd: ", e)
-        finally:
-            connection.close()
-            print("Conexión cerrada")    
-    else:
-        return redirect(url_for('home'))
         
 @app.route('/restaurant/reservations/<date>')
 def restaurant_reservations(date):

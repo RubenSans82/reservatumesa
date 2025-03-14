@@ -27,49 +27,60 @@
         </div>
     </div>
     
-    <!-- Logout button at top right -->
-    <div class="logout-container">
-        <a href="/logout_restaurant" class="btn button-pulse logout-btn">
-            <i class="bi bi-box-arrow-right"></i> Cerrar Cocina
-        </a>
-    </div>
-
     <div class="container page-transition">
+        <!-- Header row with buttons aligned to the far right -->
+        <div class="row mb-4">
+            <div class="col-12 text-end">
+                <a href="/restaurant/edit_profile" class="btn back-btn me-2">
+                    <i class="bi bi-shop-window"></i> Editar Restaurante
+                </a>
+                <a href="/logout_restaurant" class="btn button-pulse logout-btn">
+                    <i class="bi bi-box-arrow-right"></i> Cerrar Cocina
+                </a>
+            </div>
+        </div>
+        
         <div class="row justify-content-center">
             <div class="col-md-10">
-                <h1 class="text-center mb-4">Reservas de {{ restaurant.restaurant_name }}</h1>
+                <h1 class="text-center mb-5">Reservas de {{ restaurant.restaurant_name }}</h1>
                 
-                <!-- Add date selector similar to home page -->
-                <div class="date-selector text-center">
-                    <form action="/restaurant/reservations/" method="get" class="d-inline-block" id="date-form">
-                        <div class="input-group">
-                            <input type="date" name="date" class="form-control" value="{{ selected_date }}" required>
-                            <button type="button" class="btn button-pulse" onclick="navigateToDate()">Ver reservas</button>
-                        </div>
-                    </form>
-                    <script>
-                        function navigateToDate() {
-                            const dateInput = document.querySelector('input[name="date"]');
-                            const selectedDate = dateInput.value;
-                            if (selectedDate) {
-                                window.location.href = `/restaurant/reservations/${selectedDate}`;
+                <!-- Better organized date selection -->
+                <div class="row justify-content-left mb-5">
+                    <div class="col-md-8">
+                        <form action="/restaurant/reservations/" method="get" id="date-form" style="margin: 0!important;">
+                            <div class="date-selector mb-3">
+                                <div class="input-group">
+                                    <input type="date" name="date" class="form-control" value="{{ selected_date }}" required>
+                                </div>
+                            </div>
+                            
+                            <!-- Buttons inside the form -->
+                            <div class="d-flex justify-content-center gap-3">
+                                <button type="button" class="btn button-pulse" onclick="navigateToDate()">
+                                    <i class="bi bi-calendar-check"></i> Ver reservas
+                                </button>
+                                <a href="/restaurant?date={{ selected_date }}" class="btn button-pulse">
+                                    <i class="bi bi-calendar3"></i> Ver Calendario
+                                </a>
+                            </div>
+                        </form>
+                        <script>
+                            function navigateToDate() {
+                                const dateInput = document.querySelector('input[name="date"]');
+                                const selectedDate = dateInput.value;
+                                if (selectedDate) {
+                                    window.location.href = `/restaurant/reservations/${selectedDate}`;
+                                }
                             }
-                        }
-                    </script>
-                </div>
-                
-                <h3 class="text-center mb-4">Fecha: {{ selected_date }}</h3>
-                
-                <div class="text-center mb-4">
-                    <a href="/restaurant?date={{ selected_date }}" class="btn button-pulse">
-                        <i class="bi bi-calendar3"></i> Ver Calendario
-                    </a>
+                        </script>
+                    </div>
+
                 </div>
                 
                 {% if reservations %}
                     <div class="table-responsive">
-                        <table class="table table-hover reservation-table">
-                            <thead class="table-dark">
+                        <table class="table reservation-table">
+                            <thead>
                                 <tr>
                                     <th>Hora</th>
                                     <th>Cliente</th>
@@ -123,20 +134,47 @@
                     </div>
                 {% else %}
                     <div class="alert alert-info text-center">
+                        <i class="bi bi-calendar-x"></i>
                         No hay reservas para esta fecha.
                     </div>
                 {% endif %}
                 
-                <!-- Add back the bottom navigation -->
-                <div class="mt-5 text-center">
-                    <a href="/restaurant" class="btn button-pulse">
-                        <i class="bi bi-house"></i> Volver al Calendario
-                    </a>
-                </div>
+
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-</body>
-</html>
+    
+    <!-- Add some animation to table rows -->
+    <style>
+        .reservation-table tbody tr {
+            transition: all 0.3s ease;
+            animation: fadeIn 0.6s ease-out;
+            animation-fill-mode: both;
+        }
+        
+        .reservation-table tbody tr:nth-child(odd) {
+            animation-delay: 0.1s;
+        }
+        
+        .reservation-table tbody tr:nth-child(even) {
+            animation-delay: 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Enhanced styling for empty state */
+        .alert-info {
+            animation: pulse-subtle 3s infinite;
+        }
+        
+        @keyframes pulse-subtle {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+    </style>
+</body></html>

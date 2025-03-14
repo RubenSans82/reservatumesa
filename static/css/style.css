@@ -851,12 +851,11 @@ input.invalid, textarea.invalid {
     }
 }
 
-/* Logout and Back button styles */
+/* Logout and Back button styles - updated for scrolling with content */
 .logout-container, .back-container {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
+    display: flex;
+    gap: 10px;
+    z-index: 100;
 }
 
 .logout-btn, .back-btn {
@@ -884,6 +883,19 @@ input.invalid, textarea.invalid {
 
 .logout-btn i, .back-btn i {
     margin-right: 8px;
+}
+
+/* Responsive adjustments for button containers */
+@media (max-width: 768px) {
+    .logout-container {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .logout-btn, .back-btn {
+        padding: 8px 15px;
+        font-size: 0.8rem;
+    }
 }
 
 /* Restaurant list styling - consolidated duplicate properties */
@@ -952,7 +964,7 @@ input.invalid, textarea.invalid {
     padding: 6px;
     background-color: rgba(0, 0, 0, 0.4);
     border-radius: 8px;
-    backdrop-filter: blur(2px);
+ 
 }
 
 /* Botón "Ver" en home.html - oculto por defecto */
@@ -1064,7 +1076,6 @@ input.invalid, textarea.invalid {
 
 /* Ensure restaurant item has sufficient width */
 .restaurant-item {
-    /* ...existing code... */
     min-width: 280px; /* Ensure minimum width for card */
 }
 
@@ -1482,16 +1493,17 @@ input.invalid, textarea.invalid {
 
 /* Date selector styling */
 .date-selector {
-    margin: 25px 0;
+    margin: 15px 0;
+    padding: 5px;
+
 }
 
 .date-selector .input-group {
-    max-width: 400px;
+    max-width: 100%;
     margin: 0 auto;
     background-color: rgba(255, 255, 255, 0.1);
     padding: 10px;
     border-radius: 50px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
 .date-selector input[type="date"] {
@@ -1537,5 +1549,288 @@ input.invalid, textarea.invalid {
         padding: 5px 8px;
         font-size: 0.8rem;
         width: 90px;
+    }
+}
+
+/* Estilos mejorados para la tabla de reservaciones */
+.table-container {
+    max-width: 100%;
+    overflow-x: auto;
+    margin: 30px 0;
+    padding: 5px;
+    border-radius: 15px;
+    background: rgba(37, 42, 52, 0.3);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.reservation-table {
+    width: 100%;
+    min-width: 800px;
+    border-collapse: separate;
+    border-spacing: 0;
+    background-color: rgba(37, 42, 52, 0.7);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Estilos para el encabezado de la tabla */
+.reservation-table thead th {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 15px 8px;
+    font-weight: 600;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Columna de hora */
+.time-slot {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 12px 15px;
+    font-weight: 600;
+    text-align: center;
+    width: 100px;
+    position: sticky;
+    left: 0;
+    z-index: 5;
+}
+
+/* Columnas de asientos */
+.seat-column {
+    width: calc((100% - 100px) / var(--total-seats, 10));
+    min-width: 35px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    text-align: center;
+}
+
+/* Filas de la tabla */
+.reservation-table tbody tr {
+    transition: background-color 0.3s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.reservation-table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Celda de descanso */
+.break-time {
+    background-color: rgba(0, 0, 0, 0.3);
+    color: var(--light-color);
+    text-align: center;
+    padding: 10px;
+    font-style: italic;
+}
+
+/* Celdas de reservación */
+.reservation-cell {
+    background-color: var(--secondary-color);
+    color: white;
+    text-align: center;
+    padding: 8px 5px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: 2px solid white;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+.reservation-cell:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    z-index: 15;
+}
+
+/* Estilos para reservas pendientes y confirmadas */
+.reservation-pending {
+    background-color: var(--accent-color);
+    color: var(--dark-color);
+    animation: pulse-pending 2s infinite;
+}
+
+.reservation-confirmed {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+@keyframes pulse-pending {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(255, 190, 11, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(255, 190, 11, 0);
+    }
+}
+
+/* Información de capacidad */
+.capacity-info {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 16px 20px;
+    border-radius: 30px;
+    margin: 15px auto;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    border-left: 5px solid var(--accent-color);
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    transform: scale(1);
+    transition: all 0.3s ease;
+}
+
+.capacity-info:hover {
+    transform: scale(1.03);
+    border-left-color: var(--primary-color);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Información de capacidad más compacta */
+.capacity-info {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 10px 15px;
+    border-radius: 30px;
+    margin: 0 auto;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    border-left: 5px solid var(--accent-color);
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    transform: scale(1);
+    transition: all 0.3s ease;
+    width: fit-content;
+}
+
+.capacity-info:hover {
+    transform: scale(1.03);
+    border-left-color: var(--primary-color);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Mejoras responsivas */
+@media (max-width: 768px) {
+    .capacity-info {
+        margin: 20px auto;
+    }
+    
+    /* Alineación responsive para el layout de 3 columnas */
+    .col-md-5, .col-md-3, .col-md-4 {
+        text-align: center !important;
+        margin-bottom: 15px;
+    }
+    
+    .col-md-4 .btn {
+        width: auto;
+        display: inline-block;
+    }
+}
+
+/* Mejoras responsivas para la tabla */
+@media (max-width: 768px) {
+    .reservation-table {
+        min-width: 600px;
+    }
+    
+    .time-slot {
+        width: 80px;
+        padding: 12px 5px;
+        font-size: 0.85rem;
+    }
+    
+    .seat-column {
+        min-width: 25px;
+        font-size: 0.8rem;
+    }
+    
+    .reservation-cell {
+        font-size: 0.8rem;
+        padding: 5px 2px;
+    }
+    
+    .date-selector {
+        padding: 0 10px;
+    }
+    
+    .capacity-info {
+        margin-top: 25px;
+    }
+}
+
+/* Mejora para la selección de fecha */
+.date-selector {
+    margin: 15px 0;
+    padding: 5px;
+
+}
+
+.date-selector .input-group {
+    max-width: 100%;
+    margin: 0 auto;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    border-radius: 50px;
+}
+
+.date-selector .btn {
+    margin: 0;
+}
+
+/* Estilos para alineación horizontal de controles */
+.date-selector {
+    margin: 0;
+    padding: 5px;
+}
+
+.date-selector .input-group {
+    max-width: 100%;
+    margin: 0 auto;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    border-radius: 50px;
+}
+
+/* Capacity info con margen ajustado para alineación */
+.capacity-info {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 10px 15px;
+    border-radius: 30px;
+    margin: 10px auto;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    border-left: 5px solid var(--accent-color);
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    transform: scale(1);
+    transition: all 0.3s ease;
+    width: fit-content;
+    display: inline-block;
+}
+
+/* Ajuste para el botón de detalles de reservas */
+.col-md-4 .btn.button-pulse {
+    margin-top: 10px; /* Ajustar para alineación vertical */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .date-selector, .capacity-info, .col-md-4 .btn.button-pulse {
+        margin-bottom: 15px;
+    }
+    
+    /* Centrar todos los elementos en vista móvil */
+    .col-md-4, .col-md-3 {
+        text-align: center !important;
+    }
+    
+    /* Hacer que los botones sean del mismo ancho en móvil */
+    .col-md-4 .btn {
+        width: 100%;
+        max-width: 300px;
     }
 }

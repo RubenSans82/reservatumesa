@@ -15,90 +15,8 @@
         rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
-        .reservation-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            margin-bottom: 2rem;
-            table-layout: fixed;
-        }
-
-        .reservation-table th,
-        .reservation-table td {
-            border: 1px solid #ddd;
-            padding: 5px 2px;
-            text-align: center;
-            font-size: 0.8rem;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .reservation-table th {
-            background-color: #f4f4f4;
-        }
-
-        .time-slot {
-            font-weight: bold;
-            background-color: #f8f9fa;
-            width: 60px;
-            min-width: 60px;
-            max-width: 60px;
-        }
-
-        .seat-column {
-            width: calc(100% / {
-                        {
-                        restaurant.capacity + 1
-                    }
-                });
-            min-width: 30px;
-        }
-
-        .reservation-cell {
-            background-color: rgba(25, 135, 84, 0.7);
-            color: white;
-            border-radius: 4px;
-            white-space: normal;
-            font-size: 0.75rem;
-            line-height: 1.2;
-        }
-
-        .reservation-pending {
-            background-color: rgba(255, 193, 7, 0.7);
-            color: #212529;
-        }
-
-        .reservation-confirmed {
-            background-color: rgba(25, 135, 84, 0.7);
-            color: white;
-        }
-
-        .break-time {
-            background-color: #f8f9fa;
-            font-style: italic;
-            color: #6c757d;
-        }
-
-        .date-selector {
-            margin-bottom: 20px;
-        }
-
-        .capacity-info {
-            margin-bottom: 15px;
-            font-style: italic;
-            color: #6c757d;
-        }
-
-
-
-        /* For very large capacities, add horizontal scroll but only when needed */
-        @media (max-width: 992px) {
-            .table-container {
-                overflow-x: auto;
-                max-width: 100%;
-                -webkit-overflow-scrolling: touch;
-            }
+        :root {
+            --total-seats: {{ restaurant.capacity }};
         }
     </style>
 </head>
@@ -120,36 +38,53 @@
         </div>
     </div>
 
-    <!-- Logout button at top right -->
-    <div class="logout-container">
-        <a href="/logout_restaurant" class="btn button-pulse logout-btn">
-            <i class="bi bi-box-arrow-right"></i> Cerrar Cocina
-        </a>
-    </div>
-
     <div class="container page-transition">
+        <!-- Header row with buttons aligned to the far right -->
+        <div class="row mb-4">
+            <div class="col-12 text-end">
+                <a href="/restaurant/edit_profile" class="btn back-btn me-2">
+                    <i class="bi bi-shop-window"></i> Editar Restaurante
+                </a>
+                <a href="/logout_restaurant" class="btn button-pulse logout-btn">
+                    <i class="bi bi-box-arrow-right"></i> Cerrar Cocina
+                </a>
+            </div>
+        </div>
+        
         <div class="row justify-content-center">
             <div class="col-md-12">
-                <h1 class="text-center mb-4">{{ restaurant.restaurant_name }}</h1>
-
-                <!-- Date selector -->
-                <div class="date-selector text-center">
-                    <form action="/restaurant" method="get" class="d-inline-block">
-                        <div class="input-group">
-                            <input type="date" name="date" class="form-control" value="{{ selected_date }}" required>
-                            <button type="submit" class="btn button-pulse">Ver reservas</button>
-                        </div>
-                    </form>
-                    <div class="mt-2">
-                        <a href="/restaurant/reservations/{{ selected_date }}" class="btn button-pulse">
-                            <i class="bi bi-list-ul"></i> Detalles de Reservas
-                        </a>
-                    </div>
+                <h1 class="text-center mb-5">{{ restaurant.restaurant_name }}</h1>
+                <div class="capacity-info mx-auto mb-5" style="margin-left: 20px !important;">
+                    <i class="bi bi-people-fill"></i> <strong>{{ restaurant.capacity }}</strong> personas
                 </div>
 
-                <!-- Capacity info -->
-                <div class="capacity-info text-center">
-                    <p>Capacidad del restaurante: {{ restaurant.capacity }} personas</p>
+                <!-- Controles de reserva reorganizados -->
+                <div class="row justify-content-left mb-4">
+                    <div class="col-md-8">
+                        <!-- Información de capacidad destacada arriba -->
+
+                        
+                        <!-- Selector de fecha y botones estructurados como en reservations.html -->
+                        <div class="col-md-8">
+                            <form action="/restaurant" method="get" id="date-form">
+                                <div class="date-selector mb-3">
+                                    <div class="input-group">
+                                        <input type="date" name="date" class="form-control" value="{{ selected_date }}" required>
+                                    </div>
+                                </div>
+                                
+                                <!-- Botones agrupados debajo del selector -->
+                                <div class="d-flex justify-content-center gap-3">
+                                    <button type="submit" class="btn button-pulse">
+                                        <i class="bi bi-calendar-check"></i> Ver reservas
+                                    </button>
+                                    <a href="/restaurant/reservations/{{ selected_date }}" class="btn button-pulse">
+                                        <i class="bi bi-list-ul"></i> Detalles de Reservas
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Reservation table - using an outer div for controlled overflow -->
@@ -184,8 +119,8 @@
                                     ns.current_res=reservation %} <td
                                     class="reservation-cell {{ 'reservation-pending' if reservation.status == 'pendiente' else 'reservation-confirmed' }}"
                                     colspan="{{ reservation.diners if reservation.diners <= (restaurant.capacity - seat_index) else (restaurant.capacity - seat_index) }}">
-                                    {{ reservation.client_name }}<br>
-                                    {{ reservation.diners }} personas
+                                    <strong>{{ reservation.client_name }}</strong><br>
+                                    <span class="diners-count">{{ reservation.diners }} personas</span>
                                     <br>
                                     <small>{{ 'Pendiente' if reservation.status == 'pendiente' else 'Confirmada'
                                         }}</small>
@@ -200,13 +135,7 @@
                             {% endfor %}
                         </tbody>
                     </table>
-                </div>
-
-                <div class="mt-4 text-center">
-                    <a href="/restaurant/manage" class="btn button-pulse">
-                        <i class="bi bi-gear"></i> Gestionar Restaurante
-                    </a>
-                </div>
+               </div>
             </div>
         </div>
     </div>
