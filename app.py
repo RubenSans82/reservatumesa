@@ -594,20 +594,36 @@ def update_reservation(reservation_id):
             if not reservation:
                 return redirect(url_for('my_reservations'))
             
-            # Actualizar la reserva
-            update_query = """
-            UPDATE reservation 
-            SET diners = %s, date = %s, time = %s
-            WHERE reservation_id = %s AND client_id = %s
-            """
-            cursor.execute(update_query, (diners, date, time, reservation_id, client_id))
+            # Verificar el estado actual de la reserva
+            # Si está confirmada, cambiarla a pendiente al modificarla
+            current_status = reservation.get('status')
+            
+            if current_status == 'confirmada':
+                # Si la reserva estaba confirmada, cambiarla a pendiente
+                update_query = """
+                UPDATE reservation 
+                SET diners = %s, date = %s, time = %s, status = 'pendiente'
+                WHERE reservation_id = %s AND client_id = %s
+                """
+                cursor.execute(update_query, (diners, date, time, reservation_id, client_id))
+                message = "Reserva modificada. Al cambiar detalles, ha vuelto a estado pendiente."
+            else:
+                # Si no estaba confirmada, mantener el estado actual
+                update_query = """
+                UPDATE reservation 
+                SET diners = %s, date = %s, time = %s
+                WHERE reservation_id = %s AND client_id = %s
+                """
+                cursor.execute(update_query, (diners, date, time, reservation_id, client_id))
+                message = "Reserva actualizada correctamente."
+                
             connection.commit()
             
-            return redirect(url_for('my_reservations'))
+            return redirect(url_for('my_reservations', message=message))
     except Exception as e:
         print("Error al actualizar reserva:", e)
         connection.rollback()
-        return redirect(url_for('my_reservations'))
+        return redirect(url_for('my_reservations', message="Error al actualizar la reserva"))
     finally:
         connection.close()
 
