@@ -419,6 +419,77 @@ def restaurant():
             print("Conexión cerrada")
     else:
         return redirect(url_for('login_pageRest'))
+    
+@app.route('/registered_user',methods=['POST'])
+def register():
+    #obtener los data del formulario
+    username = request.form['username'] 
+    password = request.form['password']
+    phone = request.form['phone']
+    #creamos la connection
+    connection = db.get_connection()
+    try:
+        with connection.cursor() as cursor:
+            # Verificar si el user ya existe
+            query = "SELECT * FROM client WHERE username = %s"
+            data = (username)
+            cursor.execute(query,data)
+            user = cursor.fetchone()
+            if user:
+                return render_template("user/register_user.html",message="El usurario ya existe")
+            else:
+                # Hash the password
+                hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+                #crear la query
+                query = "INSERT INTO client (username,password,phone) VALUES (%s,%s,%s)"
+                data = (username,hashed,phone)
+                cursor.execute(query,data)
+                connection.commit()
+                return render_template("home.html",message="usurario registrado correctamente")
+    except Exception as e:
+        print("Ocurrió un error al conectar a la bbdd: ", e)
+    finally:
+        connection.close()
+        print("Conexión cerrada")
+        
+@app.route('/registered_restaurant',methods=['POST'])
+def registerRest():
+    #obtener los datos del formulario
+    username = request.form['username'] 
+    password = request.form['password']
+    restaurant_name = request.form['name']
+    phone = request.form['phone']   
+    address = request.form['address']
+    website = request.form['website']
+    capacity = request.form['capacity']
+    description = request.form['description']
+    #creamos la conexion
+    connection = db.get_connection()
+    try:
+        with connection.cursor() as cursor:
+            # Verificar si el usuario ya existe
+            query = "SELECT * FROM restaurant WHERE username = %s"
+            data = (username,)
+            cursor.execute(query, data)
+            user = cursor.fetchone()
+            if user:
+                return render_template("restaurant/register_restaurant.html", message="El usuario ya existe")
+            else:
+                # Hash the password
+                hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+                #crear la consulta
+                query = "INSERT INTO restaurant (username, password, restaurant_name, phone, address, website, capacity, description) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+                data = (username, hashed, restaurant_name, phone, address, website, capacity, description)
+                cursor.execute(query, data)
+                connection.commit()
+                return render_template("home.html", message="Restaurante registrado correctamente")
+    except Exception as e:
+        print("Ocurrió un error al conectar a la bbdd: ", e)
+        return render_template("home.html", message="Error al registrar el restaurante")
+    finally:
+        connection.close()
+        print("Conexión cerrada")
+                
 
 @app.route('/logout_restaurant')
 def logout_restaurant():
