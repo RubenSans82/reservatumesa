@@ -37,6 +37,14 @@
             <div class="col-md-8 col-lg-5">
                 <h1 class="text-center mb-4">Abre la Cocina!!!</h1>
                 
+                <!-- Added error message display -->
+                {% if message %}
+                <div class="message text-center mb-4">
+                    <i class="bi bi-exclamation-circle-fill me-2"></i>
+                    <span>¡Oops!</span> {{ message }}
+                </div>
+                {% endif %}
+                
                 <form action="/restaurant" method="POST">
                     <label for="username">Usuario</label>
                     <input type="username" name="username" id="username" required>
