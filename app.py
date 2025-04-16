@@ -579,7 +579,7 @@ def update_reservation_status():
                 
                 print(f"Verification result: {result}")
                 
-                if result and result['username'] == session['username']:
+                if result and str.upper(result['username']) == str.upper(session['username']):
                     # Update the reservation status
                     update_query = "UPDATE reservation SET status = %s WHERE reservation_id = %s"
                     cursor.execute(update_query, (new_status, reservation_id))
